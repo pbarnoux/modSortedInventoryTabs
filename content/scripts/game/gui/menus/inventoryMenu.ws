@@ -113,6 +113,10 @@ class CR4InventoryMenu extends CR4MenuBase
 	private var m_fxSetNewFlagsForTabs		 : CScriptedFlashFunction;
 	private var m_fxSetSortingMode			 : CScriptedFlashFunction;
 	
+	// -- modSortedInventoryTabs --
+	private var _sitListener : SitListener;
+	// -- modSortedInventoryTabs --
+
 	event  OnConfigUI()
 	{
 		var l_flashPaperdoll		: CScriptedFlashSprite;
@@ -199,6 +203,11 @@ class CR4InventoryMenu extends CR4MenuBase
 		_tooltipDataProvider = new W3TooltipComponent in this;
 		_tooltipDataProvider.initialize(_inv, m_flashValueStorage);
 		
+		// -- modSortedInventoryTabs --
+		_sitListener = new SitListener in this;
+		_sitListener.Initialize();
+		// -- modSortedInventoryTabs --
+
 		theGame.GetGuiManager().SetBackgroundTexture( LoadResource( "inventory_background" ) );
 		
 		
@@ -429,6 +438,9 @@ class CR4InventoryMenu extends CR4MenuBase
 	{
 		var l_flashObject  : CScriptedFlashObject;
 		var l_flashArray   : CScriptedFlashArray;
+		// ++ modSortedInventoryTabs ++
+		var sortables      : array < SitSortable >;
+		// -- modSortedInventoryTabs --
 		
 		l_flashObject = m_flashValueStorage.CreateTempFlashObject();
 		l_flashArray = m_flashValueStorage.CreateTempFlashArray();
@@ -457,7 +469,9 @@ class CR4InventoryMenu extends CR4MenuBase
 				break;
 			case InventoryMenuTab_Potions:
 				_playerInv.SetFilterType( IFT_AlchemyItems );
-				_playerInv.GetInventoryFlashArray(l_flashArray, l_flashObject);
+				// ++ modSortedInventoryTabs ++
+				_playerInv.GetSortableAndFlashArray(sortables, l_flashArray, l_flashObject);
+				// -- modSortedInventoryTabs --
 				break;
 			case InventoryMenuTab_Ingredients:
 				_playerInv.SetFilterType( IFT_Ingredients );
@@ -478,6 +492,9 @@ class CR4InventoryMenu extends CR4MenuBase
 			}
 		}
 		
+		// ++ modSortedInventoryTabs ++
+		_sitListener.OnPopulateTabData( tabIndex, sortables, l_flashArray );
+		// -- modSortedInventoryTabs --
 		PopulateDataForTab(tabIndex, l_flashArray);
 	}
 	

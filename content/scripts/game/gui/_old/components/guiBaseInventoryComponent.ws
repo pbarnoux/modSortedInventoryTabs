@@ -150,6 +150,47 @@ abstract class W3GuiBaseInventoryComponent
 		}
 	}
 	
+	// ++ modSortedInventoryTabs ++
+	public function GetSortableAndFlashArray( out sortables: array < SitSortable >, out flashArray : CScriptedFlashArray, flashObject : CScriptedFlashObject ) : void
+	{
+		var i             : int;
+		var item          : SItemUniqueId;
+		var rawItems      : array< SItemUniqueId >;
+		var l_flashObject : CScriptedFlashObject;
+		var sortable      : SitSortable;
+
+		_inv.GetAllItems( rawItems );
+		filteredItems.Clear();
+
+		for ( i = 0; i < rawItems.Size(); i += 1 )
+		{
+			item = rawItems[i];
+
+			if ( ShouldShowItem( item ) )
+			{
+				filteredItems.PushBack( item );
+				l_flashObject = flashObject.CreateFlashObject("red.game.witcher3.menus.common.ItemDataStub");
+				SetInventoryFlashObjectForItem( item, l_flashObject );
+				flashArray.PushBackFlashObject(l_flashObject);
+				sortable = CreateSortableForFlashObject( item, l_flashObject );
+				sortables.PushBack( sortable );
+			}
+		}
+	}
+
+	function CreateSortableForFlashObject( item: SItemUniqueId, flashObject: CScriptedFlashObject ): SitSortable
+	{
+		var sortable: SitSortable;
+		sortable = new SitSortable in this;
+		sortable.Initialize (
+			flashObject,
+			_inv.GetItemName( item ),
+			GetLocStringByKeyExt( _inv.GetItemLocalizedNameByUniqueID( item ) )
+		);
+		return sortable;
+	}
+	// -- modSortedInventoryTabs --
+
 	public function HasNewFlagOnItem() : bool
 	{
 		var i : int;
