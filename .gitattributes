@@ -1,0 +1,5 @@
+# Script files are text ending with CRLF
+*.ws text=crlf
+
+# For everything else, use LF eol
+* text=auto
