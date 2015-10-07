@@ -8,8 +8,6 @@ class SitListener
 
 	public function Initialize(): void
 	{
-		_potionSorter = new SitPotionSorter in this;
-		_potionSorter.Initialize();
 		LogChannel( 'MOD_SIT', "SitListener initialized");
 	}
 
@@ -18,6 +16,8 @@ class SitListener
 	*/
 	public function OnPopulateTabData( tabIndex: int, sortables: array < SitSortable >, out entriesArray: CScriptedFlashArray ): void
 	{
+		_potionSorter = new SitPotionSorter in this;
+		_potionSorter.Initialize();
 		LogChannel( 'MOD_SIT', "SitListener.OnPopulateTabData" );
 
 		if( tabIndex == InventoryMenuTab_Potions )
