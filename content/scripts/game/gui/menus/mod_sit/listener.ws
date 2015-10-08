@@ -4,8 +4,6 @@ Notified when some methods are triggered in base scripts.
 */
 class SitListener
 {
-	private var _potionSorter : SitSorter;
-
 	public function Initialize(): void
 	{
 		LogChannel( 'MOD_SIT', "SitListener initialized");
@@ -16,14 +14,29 @@ class SitListener
 	*/
 	public function OnPopulateTabData( tabIndex: int, sortables: array < SitSortable >, out entriesArray: CScriptedFlashArray ): void
 	{
-		_potionSorter = new SitPotionSorter in this;
-		_potionSorter.Initialize();
-		LogChannel( 'MOD_SIT', "SitListener.OnPopulateTabData" );
+		var sorter: SitSorter;
+		sorter = GetSorter( tabIndex );
 
-		if( tabIndex == InventoryMenuTab_Potions )
+		if( sorter )
 		{
-			// Sorts the items when bringing up the 'usable tab'
-			_potionSorter.Sort( sortables, entriesArray );
+			LogChannel( 'MOD_SIT', "SitListener.OnPopulateTabData" );
+			sorter.Initialize();
+			sorter.Sort( sortables, entriesArray );
+		}
+	}
+
+	/*
+	Returns the sorter instance matching the requested tab
+	Returns NULL if the tab is not handled (yet) by this mod
+	*/
+	private function GetSorter( tabIndex: int ): SitSorter
+	{
+		switch( tabIndex )
+		{
+			case InventoryMenuTab_Potions:
+				return new SitPotionSorter in this;
+			default:
+				return NULL;
 		}
 	}
 }

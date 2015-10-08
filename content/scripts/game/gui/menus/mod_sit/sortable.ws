@@ -5,8 +5,8 @@ without messing with the internal structure of the flash object.
 */
 class SitSortable
 {
-	private var _flashObject: CScriptedFlashObject;
-	private var _name: string;
+	private var _flashObject  : CScriptedFlashObject;
+	private var _name         : string;
 	private var _localizedName: string;
 
 	public function Initialize( flashObject: CScriptedFlashObject, baseName: string, localizedName: string): void
@@ -45,6 +45,6 @@ class SitSortable
 	*/
 	public function ToString(): string
 	{
-		return "{class: SitSortable, object : {_name: " + _name + ", _localizedName: " + _localizedName + " _flashObject: " + _flashObject.ToString() + " } }";
+		return "{class: SitSortable, object : {_name: " + _name + ", _localizedName: " + _localizedName + " } }";
 	}
 }

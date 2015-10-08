@@ -74,10 +74,9 @@ class SitPotionSorter extends SitSorter
 	*/
 	protected function GetCategoryIndex( element: SitSortable ): int
 	{
-		var categoryIndex: int;
-		var categoryName : string;
-		var elementName  : string;
-		var flashObject  : CScriptedFlashObject;
+		var categoryName: string;
+		var elementName : string;
+		var flashObject : CScriptedFlashObject;
 
 		flashObject = element.GetFlashObject();
 		categoryName = flashObject.GetMemberFlashString( "category" );
@@ -135,8 +134,8 @@ class SitPotionSorter extends SitSorter
 
 		if ( l_quality == r_quality )
 		{
-			strLen = Min( StrLen( l_localizedName ), StrLen( r_localizedName ) );
 			// Both items have same quality, sort by name then
+			strLen = Min( StrLen( l_localizedName ), StrLen( r_localizedName ) );
 			return StrCmp( l_localizedName, r_localizedName, strLen, true );
 		}
 		return r_quality - l_quality;

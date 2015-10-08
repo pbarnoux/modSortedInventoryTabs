@@ -113,7 +113,7 @@ class CR4InventoryMenu extends CR4MenuBase
 	private var m_fxSetNewFlagsForTabs		 : CScriptedFlashFunction;
 	private var m_fxSetSortingMode			 : CScriptedFlashFunction;
 	
-	// -- modSortedInventoryTabs --
+	// ++ modSortedInventoryTabs ++
 	private var _sitListener : SitListener;
 	// -- modSortedInventoryTabs --
 
@@ -203,7 +203,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		_tooltipDataProvider = new W3TooltipComponent in this;
 		_tooltipDataProvider.initialize(_inv, m_flashValueStorage);
 		
-		// -- modSortedInventoryTabs --
+		// ++ modSortedInventoryTabs ++
 		_sitListener = new SitListener in this;
 		_sitListener.Initialize();
 		// -- modSortedInventoryTabs --

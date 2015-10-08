@@ -11,7 +11,8 @@ abstract class SitSorter
 	}
 
 	/*
-	Sorts the given element. First, each element is assigned to a category, and then the elements are reordered based on the category priority.
+	Sorts the given element. First, each element is assigned to a category.
+	Then elements are reordered based on the category priority.
 	*/
 	public function Sort( sortables: array < SitSortable >, out entriesArray: CScriptedFlashArray ): void
 	{
@@ -19,7 +20,7 @@ abstract class SitSorter
 		var element: SitSortable;
 
 		length = entriesArray.GetLength();
-		LogChannel( 'MOD_SIT', "SitSorter.Sort sorting " + length + " elements in " + _categories.Size() + " categories" );
+		LogChannel( 'MOD_SIT', "SitSorter.Sort sorting " + length + " elements" );
 
 		for( index = 0; index < length; index += 1 )
 		{
@@ -30,7 +31,7 @@ abstract class SitSorter
 		entriesArray.ClearElements();
 		FlattenCategories( entriesArray );
 		length = entriesArray.GetLength();
-		LogChannel( 'MOD_SIT', "SitSorter.Sort sorted " + length + " elements in " + _categories.Size() + " categories" );
+		LogChannel( 'MOD_SIT', "SitSorter.Sort sorted " + length + " elements" );
 	}
 
 	/*
@@ -54,13 +55,13 @@ abstract class SitSorter
 	}
 
 	/*
-	Default behavior: put this item at the end of the selected category.
+	Inserts the element inside a category at the best position according to item status.
 	*/
 	private function AddToCategory( categoryIndex: int, element: SitSortable ): void
 	{
 		var length, index: int;
 
-		LogChannel( 'MOD_SIT', "SitSorter.AddToCategory( " + categoryIndex + ", " + element.ToString() + " )" );
+		LogChannel( 'MOD_SIT', "SitSorter.AddToCategory " + categoryIndex + ", " + element.ToString() );
 		length = _categories[ categoryIndex ].Size();
 
 		for( index = 0; index < length; index += 1 )
@@ -75,7 +76,7 @@ abstract class SitSorter
 	}
 
 	/*
-	Flattens the two-diemsional array of items into a single dimension array of items having their grid position attribute updated.
+	Flattens the two-dimensional array of items into a single dimension array of items.
 	*/
 	private function FlattenCategories( out entriesArray: CScriptedFlashArray ): void
 	{
@@ -91,7 +92,8 @@ abstract class SitSorter
 	}
 
 	/*
-	Adds all elements of a given category - and modify their grid position attribute - at the end of the array of items.
+	Adds all elements of a given category.
+	Elements gridPosition is altered by this method.
 	*/
 	private function AppendTo( out entriesArray: CScriptedFlashArray, categoryIndex: int ): void
 	{
@@ -100,7 +102,7 @@ abstract class SitSorter
 
 		length = _categories[ categoryIndex ].Size();
 		offset = entriesArray.GetLength();
-		LogChannel( 'MOD_SIT', "SitSorter.AppendTo ; appending " + length + " elements to the output array containing " + offset + " elements" );
+		LogChannel( 'MOD_SIT', "SitSorter.AppendTo " + length + " elements, offset: " + offset );
 
 		for( index = 0; index < length; index += 1 )
 		{
