@@ -499,7 +499,9 @@ class CR4InventoryMenu extends CR4MenuBase
 				break;
 			case InventoryMenuTab_QuestItems:
 				_playerInv.SetFilterType( IFT_QuestItems );
-				_playerInv.GetInventoryFlashArray(l_flashArray, l_flashObject);
+				// ++ modSortedInventoryTabs ++
+				_playerInv.GetSortableAndFlashArray(sortables, l_flashArray, l_flashObject);
+				// -- modSortedInventoryTabs --
 				break;
 			case InventoryMenuTab_Default:
 				_playerInv.SetFilterType( IFT_Default );
@@ -507,7 +509,9 @@ class CR4InventoryMenu extends CR4MenuBase
 				break;
 			case InventoryMenuTab_Books:
 				_playerInv.SetFilterType( IFT_Books );
-				_playerInv.GetInventoryFlashArray(l_flashArray, l_flashObject);
+				// ++ modSortedInventoryTabs ++
+				_playerInv.GetSortableAndFlashArray(sortables, l_flashArray, l_flashObject);
+				// -- modSortedInventoryTabs --
 				break;
 			}
 		}

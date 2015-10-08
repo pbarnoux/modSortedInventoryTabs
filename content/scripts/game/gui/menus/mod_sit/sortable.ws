@@ -8,12 +8,17 @@ class SitSortable
 	private var _flashObject  : CScriptedFlashObject;
 	private var _name         : string;
 	private var _localizedName: string;
+	private var _readable     : bool; default _readable = false;
 
-	public function Initialize( flashObject: CScriptedFlashObject, baseName: string, localizedName: string): void
+	public function Initialize( flashObject: CScriptedFlashObject,
+		baseName: string,
+		localizedName: string,
+		optional readable: bool ): void
 	{
 		_flashObject = flashObject;
 		_name = baseName;
 		_localizedName = localizedName;
+		_readable = readable;
 	}
 
 	/*
@@ -38,6 +43,14 @@ class SitSortable
 	public function GetLocalizedName(): string
 	{
 		return _localizedName;
+	}
+
+	/*
+	Returns the wrapped localized name
+	*/
+	public function IsReadable(): bool
+	{
+		return _readable;
 	}
 
 	/*
