@@ -185,7 +185,8 @@ abstract class W3GuiBaseInventoryComponent
 		sortable.Initialize (
 			flashObject,
 			_inv.GetItemName( item ),
-			GetLocStringByKeyExt( _inv.GetItemLocalizedNameByUniqueID( item ) )
+			GetLocStringByKeyExt( _inv.GetItemLocalizedNameByUniqueID( item ) ),
+			_inv.ItemHasTag(item, 'ReadableItem')
 		);
 		return sortable;
 	}

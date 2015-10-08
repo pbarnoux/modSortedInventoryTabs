@@ -35,6 +35,9 @@ class SitListener
 		{
 			case InventoryMenuTab_Potions:
 				return new SitPotionSorter in this;
+			case InventoryMenuTab_QuestItems:
+			case InventoryMenuTab_Books:
+				return new SitBookSorter in this;
 			default:
 				return NULL;
 		}
