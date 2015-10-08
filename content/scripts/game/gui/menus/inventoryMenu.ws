@@ -293,6 +293,13 @@ class CR4InventoryMenu extends CR4MenuBase
 		SelectCurrentModule();
 		
 		SetInitialTabNewFlags();
+		
+		//---=== modFriendlyHUD ===---
+		if( _currentState == IMS_Player && GetFHUDConfig().potionsTabOpensByDefault )
+		{
+			UpdateInventoryFilter( IFT_AlchemyItems );
+		}
+		//---=== modFriendlyHUD ===---
 	}
 	
 	event  OnSortingIndexChoosingStart()
@@ -501,7 +508,7 @@ class CR4InventoryMenu extends CR4MenuBase
 	private function PopulateDataForTab(tabIndex:int, entriesArray:CScriptedFlashArray):void
 	{
 		var l_flashObject : CScriptedFlashObject;
-		
+
 		l_flashObject = m_flashValueStorage.CreateTempFlashObject();
 		l_flashObject.SetMemberFlashInt("tabIndex", tabIndex);
 		l_flashObject.SetMemberFlashArray("tabData", entriesArray);
@@ -514,7 +521,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		{
 			m_fxShowSecondaryModulesSFF.InvokeSelfOneArg(FlashArgBool(false));
 		}
-		
+	
 		m_flashValueStorage.SetFlashObject( "player.inventory.menu.tabs.data" + tabIndex, l_flashObject );
 	}
 	
@@ -525,28 +532,105 @@ class CR4InventoryMenu extends CR4MenuBase
 		
 		currentFilter = _playerInv.GetFilterType();
 		
+		//---=== modFriendlyHUD ===---
 		_playerInv.SetFilterType( IFT_Weapons );
-		hasNewItems.PushBack(_playerInv.HasNewFlagOnItem());
+		if ( GetFHUDConfig().ShowNewItmesInTab("Weapons") )
+		{
+			hasNewItems.PushBack(_playerInv.HasNewFlagOnItem());
+		}
+		else
+		{
+			ResetNewFlags();
+			hasNewItems.PushBack( false );
+		}
 		
 		_playerInv.SetFilterType( IFT_AlchemyItems );
-		hasNewItems.PushBack(_playerInv.HasNewFlagOnItem());
+		if ( GetFHUDConfig().ShowNewItmesInTab("Alchemy") )
+		{
+			hasNewItems.PushBack(_playerInv.HasNewFlagOnItem());
+		}
+		else
+		{
+			ResetNewFlags();
+			hasNewItems.PushBack( false );
+		}
 		
 		_playerInv.SetFilterType( IFT_QuestItems );
-		hasNewItems.PushBack(_playerInv.HasNewFlagOnItem());
+		if ( GetFHUDConfig().ShowNewItmesInTab("Quest") )
+		{
+			hasNewItems.PushBack(_playerInv.HasNewFlagOnItem());
+		}
+		else
+		{
+			ResetNewFlags();
+			hasNewItems.PushBack( false );
+		}
 		
 		_playerInv.SetFilterType( IFT_Default );
-		hasNewItems.PushBack(_playerInv.HasNewFlagOnItem());
+		if ( GetFHUDConfig().ShowNewItmesInTab("Default") )
+		{
+			hasNewItems.PushBack(_playerInv.HasNewFlagOnItem());
+		}
+		else
+		{
+			ResetNewFlags();
+			hasNewItems.PushBack( false );
+		}
 		
 		_playerInv.SetFilterType( IFT_Ingredients );
-		hasNewItems.PushBack(_playerInv.HasNewFlagOnItem());
+		if ( GetFHUDConfig().ShowNewItmesInTab("Ingredients") )
+		{
+			hasNewItems.PushBack(_playerInv.HasNewFlagOnItem());
+		}
+		else
+		{
+			ResetNewFlags();
+			hasNewItems.PushBack( false );
+		}
 		
 		_playerInv.SetFilterType( IFT_Books );
-		hasNewItems.PushBack(_playerInv.HasNewFlagOnItem());
+		if ( GetFHUDConfig().ShowNewItmesInTab("Books") )
+		{
+			hasNewItems.PushBack(_playerInv.HasNewFlagOnItem());
+		}
+		else
+		{
+			ResetNewFlags();
+			hasNewItems.PushBack( false );
+		}
+		//---=== modFriendlyHUD ===---
 		
 		_playerInv.SetFilterType(currentFilter);
 		
 		m_fxSetNewFlagsForTabs.InvokeSelfSixArgs(FlashArgBool(hasNewItems[0]), FlashArgBool(hasNewItems[1]), FlashArgBool(hasNewItems[2]), FlashArgBool(hasNewItems[3]), FlashArgBool(hasNewItems[4]), FlashArgBool(hasNewItems[5]));
 	}
+	
+	//---=== modFriendlyHUD ===---
+	public function ResetNewFlags()
+	{
+		var i : int;
+		var item : SItemUniqueId;
+		var curInventory : CInventoryComponent;
+		var rawItems : array< SItemUniqueId >;
+		var uiData : SInventoryItemUIData;
+		
+		curInventory = _playerInv.GetInventoryComponent();
+		curInventory.GetAllItems( rawItems );
+		for ( i = 0; i < rawItems.Size(); i += 1 )
+		{		
+			item = rawItems[i];
+			if ( _playerInv.GetFilterTypeByItem( item ) == _playerInv.GetFilterType() ) // this depends on current FilterType
+			{
+				uiData = curInventory.GetInventoryItemUIData( item );
+				if ( uiData.isNew )
+				{
+					uiData.isNew = false;
+					curInventory.SetInventoryItemUIData( item, uiData );
+				}
+			}
+		}
+	}
+	//---=== modFriendlyHUD ===---
 	
 	public function getTabFromItem(item:SItemUniqueId):int
 	{
