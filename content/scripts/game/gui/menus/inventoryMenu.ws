@@ -1,10 +1,9 @@
-/*
-Copyright © CD Projekt RED 2015
-*/
-
-
-
-
+/***********************************************************************/
+/** Witcher Script file - inventory
+/***********************************************************************/
+/** Copyright © 2013 CDProjektRed
+/** Author : Bartosz Bigaj
+/***********************************************************************/
 
 enum EInventoryMenuState
 {
@@ -31,7 +30,7 @@ enum InventoryMenuStashTabIndexes
 	StashMenuTab_Default = 1
 };
 
-
+// Struct representing alchemy recipe
 struct SentStatsData
 {
 	var statName : name;
@@ -56,6 +55,7 @@ class CR4InventoryMenu extends CR4MenuBase
 	private var _invContext			: W3InventoryGridContext;
 	private var _externGridContext	: W3ExternalGridContext;
 	private var _bookPopupData		: BookPopupFeedback;
+	private var _paintingPopupData  : PaintingPopup;
 	private var _charStatsPopupData : CharacterStatsPopupData;
 	private var _itemInfoPopupData	: ItemInfoPopupData;
 	private var _destroyConfPopData	: W3DestroyItemConfPopup;
@@ -100,7 +100,7 @@ class CR4InventoryMenu extends CR4MenuBase
 	
 	var currentSelectedItem : SItemUniqueId;
 	
-	
+	//private var m_flashModule			  : CScriptedFlashSprite;
 	private var m_fxPaperdollRemoveItem   	 : CScriptedFlashFunction;
 	private var m_fxInventoryRemoveItem   	 : CScriptedFlashFunction;
 	private var m_fxInventoryUpdateFilter 	 : CScriptedFlashFunction;
@@ -113,7 +113,7 @@ class CR4InventoryMenu extends CR4MenuBase
 	private var m_fxSetNewFlagsForTabs		 : CScriptedFlashFunction;
 	private var m_fxSetSortingMode			 : CScriptedFlashFunction;
 	
-	event  OnConfigUI()
+	event /*flash*/ OnConfigUI()
 	{
 		var l_flashPaperdoll		: CScriptedFlashSprite;
 		var l_flashInventory		: CScriptedFlashSprite;
@@ -233,6 +233,7 @@ class CR4InventoryMenu extends CR4MenuBase
 			_shopNpc.GetInventory().ClearKnownRecipes();
 			_shopInv.Initialize( _shopNpc.GetInventory() );
 			
+			//_tooltipDataProvider.setCrafter((W3CraftsmanComponent)_shopNpc.GetComponentByClassName( 'W3CraftsmanComponent' ));
 			_tooltipDataProvider.setShopInventory(_shopNpc.GetInventory());
 			
 			_playerInv.SetShopInvCmp( _shopInv );
@@ -248,8 +249,7 @@ class CR4InventoryMenu extends CR4MenuBase
 			
 			l_craftIngredientsList = UpdatePinnedCraftingItemInfo();
 			
-			_shopInv.highlightItems(l_craftIngredientsList);
-			
+			//_playerInv.highlightItems(l_craftIngredientsList);			
 		}
 		else if( l_containerNpc )
 		{
@@ -286,7 +286,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		SetInitialTabNewFlags();
 	}
 	
-	event  OnSortingIndexChoosingStart()
+	event /*flash*/ OnSortingIndexChoosingStart()
 	{
 		var commonMenu 				: CR4CommonMenu;
 
@@ -298,7 +298,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		}
 	}
 	
-	event  OnSortingIndexChosen( sortIndex : int )
+	event /*flash*/ OnSortingIndexChosen( sortIndex : int )
 	{
 		var commonMenu 				: CR4CommonMenu;
 
@@ -311,7 +311,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		theGame.GetGuiManager().SetInventorySortingMode(sortIndex);
 	}
 	
-	event  OnGuiSceneEntitySpawned(entity : CEntity)
+	event /* C++ */ OnGuiSceneEntitySpawned(entity : CEntity)
 	{
 		var arr : array< name >;
 		
@@ -323,7 +323,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		((CActor)m_player).SetBehaviorMimicVariable( 'gameplayMimicsMode', (float)(int)PGMM_Inventory );
 	}
 	
-	event  OnGuiSceneEntityDestroyed()
+	event /* C++ */ OnGuiSceneEntityDestroyed()
 	{
 		Event_OnGuiSceneEntityDestroyed();
 	}
@@ -332,21 +332,41 @@ class CR4InventoryMenu extends CR4MenuBase
 	{
 		var UIData : SInventoryItemUIData;
 		
+		/*if (m_ignoreSaveData)
+		{
+			return;
+		}
+		if( UISavedData.openedCategories.Size() > 0 )
+		{
+			_playerInv.SetFilterType( GetFilterTypeByName(UISavedData.openedCategories[0]) );
+			m_fxInventoryUpdateFilter.InvokeSelfOneArg( FlashArgUInt( getTabFromFilter(GetFilterTypeByName(UISavedData.openedCategories[0])) ));
+		}
+		else
+		{
+			_playerInv.SetFilterType( IFT_Weapons );
+			m_fxInventoryUpdateFilter.InvokeSelfOneArg( FlashArgUInt( getTabFromFilter(IFT_Weapons) ));
+		}
+		if( _inv.IsIdValid( UISavedData.gridItem ) )
+		{
+			UIData = _inv.GetInventoryItemUIData( UISavedData.gridItem );
 		
+			m_fxForceSelectItem.InvokeSelfOneArg( FlashArgInt(UIData.gridPosition));
+		}
+		m_fxForceSelectPaperdollSlot.InvokeSelfOneArg( FlashArgInt(UISavedData.slotID) );*/
 	}
 	
-	event  OnSortingRequested()
+	event /*flash*/ OnSortingRequested()
 	{
 		_playerInv.CleanupItemsGridPosition();
 		updateCurrentTab();
 	}
 	
-	event  OnTabDataRequested(tabIndex : int, isHorse:bool)
+	event /*flash*/ OnTabDataRequested(tabIndex : int, isHorse:bool)
 	{
 		PopulateTabData(tabIndex);
 	}
 	
-	event  OnTabChanged(tabIndex:int)
+	event /*flash*/ OnTabChanged(tabIndex:int)
 	{
 		var tutStatePot : W3TutorialManagerUIHandlerStatePotions;
 		var tutStateOil : W3TutorialManagerUIHandlerStateOils;
@@ -583,8 +603,8 @@ class CR4InventoryMenu extends CR4MenuBase
 		encumbrance = (int)GetWitcherPlayer().GetEncumbrance();
 		encumbranceMax = (int)GetWitcherPlayer().GetMaxRunEncumbrance(hasHorseUpgrade);
 		
-		
-		
+		//m_flashValueStorage.SetFlashString("inventory.capacity.overburdened.text", encumbrance + "/" + encumbranceMax + " - " + GetLocStringByKeyExt("panel_common_overweight"));
+		//m_flashValueStorage.SetFlashBool("inventory.capacity.overburdened.value", encumbrance > encumbranceMax);
 		
 		UpdateItemsCounter();
 	}
@@ -645,7 +665,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		guiSceneController = theGame.GetGuiManager().GetSceneController();
 		if ( !guiSceneController )
 		{
-			
+			// ouch, something wrong
 			return;
 		}
 
@@ -664,8 +684,8 @@ class CR4InventoryMenu extends CR4MenuBase
 		}
 		else
 		{
-			
-			
+			//templateFilename             = "characters\player_entities\ciri\ciri_player.w2ent";
+			//appearance                   = 'ciri_player_towel';
 			templateFilename             = "GeraltForUI";
 			appearance                   = '';
 			environmentSunRotation.Yaw   = 0;
@@ -678,16 +698,16 @@ class CR4InventoryMenu extends CR4MenuBase
 			updateItems                  = true;
 		}
 		
-		
+		// do not use script scene functions explicitly!
 		guiSceneController.SetEntityTemplate( templateFilename );
 		guiSceneController.SetCamera( cameraLookAt, cameraRotation, cameraDistance, fov );
 		guiSceneController.SetEnvironmentAndSunRotation( "DefaultEnvironmentForUI", environmentSunRotation );
-		
+		//guiSceneController.SetEnvironmentAndSunRotation( "environment\definitions\env_prologue\env_prolog_colors.env", environmentSunRotation );
 		guiSceneController.SetEntityAppearance( appearance );
 		guiSceneController.SetEntityItems( updateItems );
 	}
 	
-	public  function SetMenuState(newState : name) : void
+	public /* override */ function SetMenuState(newState : name) : void
 	{
 		super.SetMenuState(newState);
 		if (m_menuInited)
@@ -778,6 +798,32 @@ class CR4InventoryMenu extends CR4MenuBase
 	function PaperdollRemoveItem( item : SItemUniqueId )
 	{
 		m_fxPaperdollRemoveItem.InvokeSelfOneArg( FlashArgUInt( ItemToFlashUInt(item) ));		
+	}
+	
+	private function AddEquippedPotionsToList(out itemsList  : array < SItemUniqueId > ) : void
+	{
+		var itemOnSlot : SItemUniqueId;
+		
+		GetWitcherPlayer().GetItemEquippedOnSlot(EES_Potion1, itemOnSlot);
+		if ( _inv.IsIdValid(itemOnSlot) )
+		{
+			itemsList.PushBack(itemOnSlot);
+		}
+		GetWitcherPlayer().GetItemEquippedOnSlot(EES_Potion2,itemOnSlot);
+		if ( _inv.IsIdValid(itemOnSlot) )
+		{
+			itemsList.PushBack(itemOnSlot);
+		}
+		GetWitcherPlayer().GetItemEquippedOnSlot(EES_Potion3,itemOnSlot);
+		if ( _inv.IsIdValid(itemOnSlot) )
+		{
+			itemsList.PushBack(itemOnSlot);
+		}
+		GetWitcherPlayer().GetItemEquippedOnSlot(EES_Potion4,itemOnSlot);
+		if ( _inv.IsIdValid(itemOnSlot) )
+		{
+			itemsList.PushBack(itemOnSlot);
+		}
 	}
 	
 	function PaperdollUpdateItemsList( itemsList : array<SItemUniqueId> )
@@ -872,10 +918,10 @@ class CR4InventoryMenu extends CR4MenuBase
 			secondaryInventory.GetInventoryFlashArray(l_flashArray, l_flashObject);
 		}
 		
-		
-		
+		//if (l_flashArray.GetLength() > 0)
+		//{
 			m_flashValueStorage.SetFlashArray( flashBinding, l_flashArray );
-		
+		//}
 	}
 	
 	private function UpdateItemsCounter()
@@ -893,11 +939,11 @@ class CR4InventoryMenu extends CR4MenuBase
 		if( itemsNr >= MAX_ITEM_NR && currentItemsNr != itemsNr )
 		{
 			currentItemsNr = itemsNr;
-			
+			//OnPlaySoundEvent("gui_inventory_overweighted");
 		}
 	} 
 	
-	
+	// Logic for the new tooltips system
 	
 	event OnGetItemData(item : SItemUniqueId, compareItemType : int) 
 	{
@@ -919,7 +965,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		ShowEmptySlotTooltip(equipID);
 	}
 	
-	
+	// #J If you change this system, please update it in characterMenu.ws too as its currently copy pasted there
 	public function ShowStatTooltip(statName : name) 
 	{
 		var resultData : CScriptedFlashObject;
@@ -958,11 +1004,11 @@ class CR4InventoryMenu extends CR4MenuBase
 		m_flashValueStorage.SetFlashObject("statistic.tooltip.data", resultData);
 	}
 	
-	var hideStatTooltip:bool; 
+	var hackHideStatTooltip:bool; // #Y Hack! TODO:
 	public function HideStatTooltip()
 	{
-		m_flashValueStorage.SetFlashBool("statistic.tooltip.hide", hideStatTooltip);
-		hideStatTooltip = !hideStatTooltip;
+		m_flashValueStorage.SetFlashBool("statistic.tooltip.hide", hackHideStatTooltip);
+		hackHideStatTooltip = !hackHideStatTooltip;
 	}
 	
 	public function GetItemExpTooltipData(item : SItemUniqueId) : CScriptedFlashObject
@@ -979,7 +1025,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		m_flashValueStorage.SetFlashObject("context.tooltip.data", tooltipData);
 	}
 	
-	event  OnClearSlotNewFlag(item : SItemUniqueId)
+	event /*flash*/ OnClearSlotNewFlag(item : SItemUniqueId)
 	{
 		var curInventory : CInventoryComponent;
 		var uiData : SInventoryItemUIData;
@@ -1011,11 +1057,11 @@ class CR4InventoryMenu extends CR4MenuBase
 		m_flashValueStorage.SetFlashObject("context.tooltip.data", tooltipData);
 	}
 	
-	var hideItemTooltip:bool; 
+	var hackHideItemTooltip:bool; // #Y Hack! TODO:
 	public function HideItemTooltip()
 	{
-		m_flashValueStorage.SetFlashBool("context.tooltip.hide", hideItemTooltip);
-		hideItemTooltip = !hideItemTooltip;
+		m_flashValueStorage.SetFlashBool("context.tooltip.hide", hackHideItemTooltip);
+		hackHideItemTooltip = !hackHideItemTooltip;
 	}
 	
 	public function GetCurrentInventoryComponent():W3GuiBaseInventoryComponent
@@ -1063,7 +1109,7 @@ class CR4InventoryMenu extends CR4MenuBase
 	
 	function GetFilterType( item : SItemUniqueId ) : EInventoryFilterType
 	{
-		return _paperdollInv.GetFilterTypeByItem( item ); 
+		return _paperdollInv.GetFilterTypeByItem( item ); // #B should work
 	}
 	
 	function GetItemDefaultActionName( item : SItemUniqueId ) : string
@@ -1082,7 +1128,15 @@ class CR4InventoryMenu extends CR4MenuBase
 	}
 	
 	
-		
+	/*
+		Statistic tooltip
+		#Y TODO: Review this code after we will have all tooltip's data;
+		Maybe we should use player_statistics_settings.csv for tooltip data also;
+			data types:
+				Base Stat;
+				Sign;
+				Generic
+	*/	
 	private function GetHealthTooltipData(out GFxData: CScriptedFlashArray):void
 	{
 		var maxHealth:float;
@@ -1095,7 +1149,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		maxHealth = thePlayer.GetStatMax(BCS_Vitality);
 		curHealth = thePlayer.GetStatPercents(BCS_Vitality);
 		inCombatRegen = CalculateAttributeValue(thePlayer.GetAttributeValue('vitalityCombatRegen'));
-		outOfCombatRegen = CalculateAttributeValue(thePlayer.GetAttributeValue('vitalityRegen')); 
+		outOfCombatRegen = CalculateAttributeValue(thePlayer.GetAttributeValue('vitalityRegen')); //#Y WARNING: We have no out-of-combat regen now
 		inCombatRegenStr    = NoTrailZeros( RoundTo( inCombatRegen, 1 ) );
 		outOfCombatRegenStr = NoTrailZeros( RoundTo( outOfCombatRegen, 1 ) );
 		PushStatItem(GFxData, "panel_common_statistics_tooltip_current_health",   (string)RoundMath(maxHealth * curHealth));
@@ -1118,7 +1172,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		
 		PushStatItem(GFxData, "panel_common_statistics_tooltip_current_toxicity", (string)RoundMath(curToxicity));
 		PushStatItem(GFxData, "panel_common_statistics_tooltip_current_maximum", (string)RoundMath(maxToxicity));
-		
+		//PushStatItem(GFxData, "panel_common_statistics_tooltip_base_maximum", (string)RoundMath(maxToxicity - lockedToxicity));
 		PushStatItem(GFxData, "panel_common_statistics_tooltip_locked", (string)RoundMath(lockedToxicity));		
 		PushStatItem(GFxData, "panel_common_statistics_tooltip_threshold", (string)RoundMath(toxicityThreshold));
 		PushStatItem(GFxData, "panel_common_statistics_tooltip_degeneration", (string)RoundMath(0));
@@ -1131,11 +1185,11 @@ class CR4InventoryMenu extends CR4MenuBase
 		var value : SAbilityAttributeValue;
 		
 		value = thePlayer.GetAttributeValue('staminaRegen');
-		regenStamia = value.valueMultiplicative / 0.34;
+		regenStamia = value.valueMultiplicative / 0.34;//CalculateAttributeValue(thePlayer.GetAttributeValue('staminaRegen'));
 		maxStamina = thePlayer.GetStatMax(BCS_Stamina);
 		PushStatItem(GFxData, "panel_common_statistics_tooltip_maximum_stamina ", (string)RoundMath(maxStamina));
 		PushStatItem(GFxData, "panel_common_statistics_tooltip_regeneration_rate", (string)NoTrailZeros( RoundTo(regenStamia, 2) ) );
-		
+		//PushStatItem(GFxData, "panel_common_statistics_tooltip_regeneration_delay", "");
 	}
 	
 	private function GetAdrenalineTooltipData(out GFxData: CScriptedFlashArray):void
@@ -1147,7 +1201,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		curAdrenaline = thePlayer.GetStat(BCS_Focus);
 		PushStatItem(GFxData, "panel_common_statistics_tooltip_adrenaline_current", (string)FloorF(curAdrenaline));
 		PushStatItem(GFxData, "panel_common_statistics_tooltip_adrenaline_max", (string)RoundMath(maxAdrenaline));
-		
+		//PushStatItem(GFxData, "panel_common_statistics_tooltip_adrenaline_bonus", "");
 	}
 	
 	private function GetOffenseTooltipData(out GFxData: CScriptedFlashArray):void
@@ -1237,11 +1291,34 @@ class CR4InventoryMenu extends CR4MenuBase
 		var lastSentStatString		: string;
 		
 		l_flashArray = m_flashValueStorage.CreateTempFlashArray();
+		/*statsNr = theGame.playerStatisticsSettings.GetNumRows();
 		
+		for( i = 0; i < statsNr; i += 1 )
+		{
+			statName = theGame.playerStatisticsSettings.GetValueAtAsName(0,i);
+			GetGenericStatValue(statName,valueStr);
+			l_flashObject = m_flashValueStorage.CreateTempFlashObject();
+			l_flashObject.SetMemberFlashString("name",GetLocStringByKeyExt(statName));
+			l_flashObject.SetMemberFlashUInt("id",NameToFlashUInt(statName));
+			
+			lastSentStatString = getLastSentStatValue(statName);
+			if (lastSentStatString != "" && valueStr != lastSentStatString)
+			{
+				l_flashObject.SetMemberFlashBool("changedValue", true);
+			}
+			else
+			{
+				l_flashObject.SetMemberFlashBool("changedValue", false);
+			}
+			
+			l_flashObject.SetMemberFlashString("value", valueStr);
+			updateSentStatValue(statName, valueStr);
+			l_flashArray.PushBackFlashObject(l_flashObject);
+		}*/
 		
 		AddCharacterStatU("mainSilverStat", 'silverdamage', "panel_common_statistics_tooltip_silver_dps", "attack_silver", l_flashArray, m_flashValueStorage); 
 		AddCharacterStatU("mainSteelStat", 'steeldamage', "panel_common_statistics_tooltip_steel_dps", "attack_steel", l_flashArray, m_flashValueStorage); 
-		AddCharacterStat("mainResStat", 'armor', "attribute_name_armor", "armor", l_flashArray, m_flashValueStorage); 
+		AddCharacterStat("mainResStat", 'armor', "attribute_name_armor", "armor", l_flashArray, m_flashValueStorage); // Armor :S
 		AddCharacterStat("mainMagicStat", 'spell_power', "stat_signs", "spell_power", l_flashArray, m_flashValueStorage);
 		AddCharacterStat("majorStat1", 'vitality', "vitality", "vitality", l_flashArray, m_flashValueStorage);
 		
@@ -1282,8 +1359,23 @@ class CR4InventoryMenu extends CR4MenuBase
 		return "";
 	}
 	
-	
-	
+	//#Y TODO:
+	/*
+	private function getDamageStats(statName : name, out valueStr : string):void
+	{
+		if(statName == theGame.params.CRITICAL_HIT_DAMAGE_BONUS)
+		{
+			valueStr = "+" + NoTrailZeros(RoundMath(100*CalculateAttributeValue(thePlayer.GetAttributeValue(theGame.params.CRITICAL_HIT_DAMAGE_BONUS)))); // + " %";
+			return;
+		}
+		if(statName == theGame.params.CRITICAL_HIT_CHANCE)
+		{
+			valueStr = NoTrailZeros(RoundMath(100*CalculateAttributeValue(thePlayer.GetAttributeValue(theGame.params.CRITICAL_HIT_CHANCE)))); // + " %";
+			return;
+		}	
+		valueStr = "ERROR";
+	}
+	*/
 	
 	private function GetSignStat(targetSkill:ESkill):string
 	{
@@ -1319,15 +1411,15 @@ class CR4InventoryMenu extends CR4MenuBase
 	
 	event OnTick( timeDelta : float )
 	{
-		
+		//LogChannel('INVTICK'," timeDelta "+timeDelta);
 	}
 	
-	event  OnGlobalUpdate()
+	event /*flash*/ OnGlobalUpdate()
 	{
 		UpdateData();
 	}
 	
-	event  OnSetInventoryGridFilter( item : SItemUniqueId )
+	event /*flash*/ OnSetInventoryGridFilter( item : SItemUniqueId )
 	{
 		var filterType : EInventoryFilterType;
 		filterType = _playerInv.GetFilterTypeByItem(item);
@@ -1335,7 +1427,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		m_fxInventoryUpdateFilter.InvokeSelfOneArg( FlashArgUInt( getTabFromFilter(filterType) ));
 	}
 	
-	event  OnSaveItemGridPosition( item : SItemUniqueId, gridPos : int )
+	event /*flash*/ OnSaveItemGridPosition( item : SItemUniqueId, gridPos : int )
 	{
 		SetGridPosition(item, gridPos);
 	}
@@ -1354,17 +1446,17 @@ class CR4InventoryMenu extends CR4MenuBase
 		return UIData.gridPosition;
 	}
 	
-	event  OnTooltipLoaded()
+	event /*flash*/ OnTooltipLoaded()
 	{
-		
+		// update tooltip again
 	}	
 
-	event  OnHighlightPaperDollSlot( slotType : int )
+	event /*flash*/ OnHighlightPaperDollSlot( slotType : int )
 	{
 		m_flashValueStorage.SetFlashInt("inventory.grid.paperdoll.highlight",slotType);
 	}
 	
-	event  OnClosingMenu()
+	event /* C++ */ OnClosingMenu()
 	{
 		SaveStateData();
 		super.OnClosingMenu();
@@ -1456,9 +1548,14 @@ class CR4InventoryMenu extends CR4MenuBase
 		{
 			delete _destroyConfPopData;
 		}
+		
+		if (_paintingPopupData)
+		{
+			delete _paintingPopupData;
+		}
 	}
 
-	event  OnCloseMenu()
+	event /*flash*/ OnCloseMenu()
 	{
 		CloseMenu();
 		
@@ -1473,26 +1570,26 @@ class CR4InventoryMenu extends CR4MenuBase
 			GetWitcherPlayer().SelectQuickslotItem(_currentEqippedQuickSlot);
 		}
 		
-		if( _container ) 
+		if( _container ) // @FIXME BIDON - >what about npc containers like werewolf Jacob
 		{
 			_container.OnContainerClosed();
 		}
 	}
 	
-	
-	event  OnSetActiveItem()
+	// ITEMS EVENTS
+	event /*flash*/ OnSetActiveItem()
 	{
-		
+		//PlaySoundEvent();
 		LogChannel('ITEMDRAG'," OnSetActiveItem ");
-		
+		//m_flashValueStorage.SetFlashString("inventory.item.active","",-1);
 	}
 	
-	event  OnSwapItems( playerItem : SItemUniqueId, paperdollItem : SItemUniqueId, paperdollSlot : int )
+	event /*flash*/ OnSwapItems( playerItem : SItemUniqueId, paperdollItem : SItemUniqueId, paperdollSlot : int )
 	{
 		OnEquipItem(playerItem, paperdollSlot, 1);
 	}
 	
-	event  OnPutInSocket( item : SItemUniqueId )
+	event /*flash*/ OnPutInSocket( item : SItemUniqueId )
 	{
 		var targetList : array<int>;
 		var itemOnSlot : SItemUniqueId;
@@ -1569,7 +1666,22 @@ class CR4InventoryMenu extends CR4MenuBase
 			OnPlaySoundEvent("gui_global_denied");
 		}
 		
+		/*_inv.GetAllItems( rawItems );
+		len = rawItems.Size();
+		for (i = 0; i < len; i=i+1)
+		{
+			curItem = rawItems[i];
+			_inv.GetItemTags( item, curItemTags );
+			if (!curItemTags.Contains( theGame.params.TAG_DONT_SHOW ) && !curItemTags.Contains( theGame.params.TAG_DONT_SHOW_ONLY_IN_PLAYERS ) &&
+				_playerInv.CanBeUpgradedBy(curItem, item) )
+			{
+				openSocketsMenu(item);
+				return true;
+			}
+		}
 		
+		// can't find any item to upgrade with this rune
+		showNotification("panel_inventory_notification_no_upgradable_items");*/
 		}
 	}
 	
@@ -1578,12 +1690,14 @@ class CR4InventoryMenu extends CR4MenuBase
 		var targetList : array<int>;
 		var itemOnSlot : SItemUniqueId; 
 
+		/*
 		if (thePlayer.IsInCombat())
 		{
 			showNotification(GetLocStringByKeyExt("menu_cannot_perform_action_combat"));
 			OnPlaySoundEvent("gui_global_denied");
 			return;
 		}		
+		*/
 		
 		if (_inv.ItemHasTag(item, 'SteelOil') && GetWitcherPlayer().GetItemEquippedOnSlot(EES_SteelSword, itemOnSlot) && thePlayer.inv.IsItemSteelSwordUsableByPlayer(itemOnSlot))
 		{
@@ -1601,17 +1715,21 @@ class CR4InventoryMenu extends CR4MenuBase
 		}
 		else
 		{
-			
-			
+			//should not use error from item upgrades as it mentions item sockets which have NOTHING to do with oils
+			//showNotification(GetLocStringByKeyExt("panel_inventory_notification_no_upgradable_items"));
 		}
 	}
 	
-	event  OnRepairItem( item : SItemUniqueId )
+	event /*flash*/ OnRepairItem( item : SItemUniqueId )
 	{
 		var targetList : array<int>;
 		var itemOnSlot : SItemUniqueId;
 
-					
+				/*if (thePlayer.IsInCombat())
+				{
+					showNotification(GetLocStringByKeyExt("menu_cannot_perform_action_combat"));
+					return false;
+				}	*/	
 		
 		if (_inv.ItemHasTag(item, 'WeaponReapairKit') )
 		{
@@ -1669,7 +1787,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		}
 		else
 		{
-			
+			//Ł.SZ we must change it to a proper string!!!!!!!!!!!!!!!!!!!!!
 			showNotification(GetLocStringByKeyExt("panel_inventory_nothing_to_repair"));
 			OnPlaySoundEvent("gui_global_denied");
 		}
@@ -1689,10 +1807,12 @@ class CR4InventoryMenu extends CR4MenuBase
 			targetList.PushBack(EES_Petard1);
 			targetList.PushBack(EES_Petard2);
 		}	
-		else if( slot == EES_Potion1 || slot == EES_Potion2 )
+		else if( IsSlotPotionSlot(slot) )
 		{
 			targetList.PushBack(EES_Potion1);
 			targetList.PushBack(EES_Potion2);
+			targetList.PushBack(EES_Potion3);
+			targetList.PushBack(EES_Potion4);
 		}
 		
 		if (targetList.Size() > 0)
@@ -1731,32 +1851,32 @@ class CR4InventoryMenu extends CR4MenuBase
 				}
 			}
 			
-			
+			// can't find empty socket, equip to the last one
 			OnEquipItem(itemId, targetSlotList[len - 1], 1);
 		}
 	}
 	
-	event  OnDropOnPaperdoll(item : SItemUniqueId, slot : int, quantity : int)
+	event /*flash*/ OnDropOnPaperdoll(item : SItemUniqueId, slot : int, quantity : int)
 	{
 		OnEquipItem(item, slot, quantity);
 	}
 	
-	event  OnApplyOil(item : SItemUniqueId, slot : int)
+	event /*flash*/ OnApplyOil(item : SItemUniqueId, slot : int)
 	{
 		ApplyOil(item, slot);
 	}
 	
-	event  OnApplyUpgrade(item : SItemUniqueId, slot : int)
+	event /*flash*/ OnApplyUpgrade(item : SItemUniqueId, slot : int)
 	{
 		ApplyUpgrade(item, slot);
 	}
 	
-	event  OnApplyRepairKit(item : SItemUniqueId, slot : int)
+	event /*flash*/ OnApplyRepairKit(item : SItemUniqueId, slot : int)
 	{
 		ApplyRepairKit(item, slot);
 	}
 	
-	event  OnEquipItem( item : SItemUniqueId, slot : int, quantity : int )
+	event /*flash*/ OnEquipItem( item : SItemUniqueId, slot : int, quantity : int )
 	{
 		var	paperdollItemsToUpdate : array<SItemUniqueId>;
 		
@@ -1781,7 +1901,7 @@ class CR4InventoryMenu extends CR4MenuBase
 				BuyItem(item, quantity);
 				UpdateShop();
 				UpdatePlayerStatisticsData();
-				
+				//OpenQuantityPopup(item, QTF_Buy, quantity);
 			}
 			else
 			{
@@ -1815,7 +1935,7 @@ class CR4InventoryMenu extends CR4MenuBase
 				
 				LogChannel('INVENTORY'," item;  slot "+slot );
 				
-				GetWitcherPlayer().GetItemEquippedOnSlot(slot, itemOnSlot); 
+				GetWitcherPlayer().GetItemEquippedOnSlot(slot, itemOnSlot); // Fetch the current item on slot normally for returning it to inventory
 				
 				if( slot == EES_Bolt )
 				{
@@ -1827,7 +1947,7 @@ class CR4InventoryMenu extends CR4MenuBase
 					}
 					else if (_inv.ItemHasTag(itemOnSlot,theGame.params.TAG_INFINITE_AMMO))
 					{
-						
+						//if we are underwater (have harpoon) then we cannot change bolts
 						if(_inv.GetItemName(itemOnSlot) == 'Harpoon Bolt')
 						{
 							showNotification(GetLocStringByKeyExt("menu_cannot_perform_action_now"));
@@ -1845,21 +1965,11 @@ class CR4InventoryMenu extends CR4MenuBase
 				{
 					if (!GetWitcherPlayer().GetHorseManager())
 					{
-						return true; 
+						return true; // ??!?!
 					}
 					
-					
-					if ( slot == EES_HorseTrophy && _inv.IsIdValid(item) )
-					{
-						abls.Clear();
-						_inv.GetItemAbilities(item, abls);
-						for (i=0; i < abls.Size(); i += 1)
-						{
-							if ( abls[i] == 'base_trophy_stats' )
-								continue;
-							thePlayer.AddAbility(abls[i]);
-						}
-					}
+					// Adding trophy ability to player
+					// TK: moved to horse manager as otherwise equipping item not through UI (e.g. from quest or scripts) would not add trophy ability on player
 					
 					hItem = GetWitcherPlayer().GetHorseManager().MoveItemToHorse(item, 1);
 					itemOnSlot = GetWitcherPlayer().GetHorseManager().EquipItem(hItem);
@@ -1874,26 +1984,16 @@ class CR4InventoryMenu extends CR4MenuBase
 						InventoryRemoveItem(item, false);
 					}
 					
-					
-					if ( slot == EES_HorseTrophy && _inv.IsIdValid(itemOnSlot) )
-					{
-						abls.Clear();
-						_inv.GetItemAbilities(itemOnSlot, abls);
-						for (i=0; i < abls.Size(); i += 1)
-						{
-							if ( abls[i] == 'base_trophy_stats' )
-								continue;
-							thePlayer.RemoveAbility(abls[i]);
-						}
-					}
-					
+					// Removing trophy ability from player
+					// TK: moved to horse manager as otherwise unequipping item not through UI (e.g. from quest or scripts) would not remove trophy ability on player
+						
 					PaperdollUpdateHorseItem(hItem);
 					
 					UpdateEncumbranceInfo();
 					
 					PlayItemEquipSound( _horsePaperdollInv.GetInventoryComponent().GetItemCategory(item) );
 					
-					return true; 
+					return true; // Choosing to end flow with horse items here since they are handled so different than other slotted items
 				}
 				else
 				{
@@ -1904,7 +2004,7 @@ class CR4InventoryMenu extends CR4MenuBase
 				_playerInv.EquipItem( item, slot );
 				UpdatePlayerStatisticsData();
 				
-        
+        ////////INVENTORY BEVAHIOR ANIMATION EVENTS SWITCH
 		
 				((CActor)m_player).SetBehaviorMimicVariable( 'gameplayMimicsMode', (float)(int)PGMM_Inventory );
 		
@@ -1953,15 +2053,15 @@ class CR4InventoryMenu extends CR4MenuBase
 				paperdollItemsToUpdate.PushBack(itemOnSlot);
 			}
 			
-			
-			
+			//InventoryUpdateItem(itemOnSlot);
+			//paperdollItemsToUpdate.PushBack(itemOnSlot);
 		}
 		else
 		{
 			InventoryRemoveItem(item);
 		}
 		
-		
+		//PopulateTabData(getTabFromItem(item));
 		UpdateEncumbranceInfo();
 		if (slot == EES_RangedWeapon)
 		{
@@ -1970,6 +2070,12 @@ class CR4InventoryMenu extends CR4MenuBase
 		else
 		{
 			paperdollItemsToUpdate.PushBack(item);
+			
+			if (_inv.GetEnchantment(item) == 'Runeword 6')
+			{
+				AddEquippedPotionsToList(paperdollItemsToUpdate);
+			}
+			
 			PaperdollUpdateItemsList(paperdollItemsToUpdate);
 		}
 		
@@ -2014,7 +2120,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		return false;
 	}
 	
-	event  OnUnequipItem( item : SItemUniqueId, moveToIndex : int )
+	event /*flash*/ OnUnequipItem( item : SItemUniqueId, moveToIndex : int )
 	{
 		if (thePlayer.IsInCombat())
 		{
@@ -2036,9 +2142,18 @@ class CR4InventoryMenu extends CR4MenuBase
 		var forceInvAllUpdate : bool;
 		var abls	   : array<name>;
 		var i		   : int;
+		var itemsList  : array<SItemUniqueId>;
+		
 		forceInvAllUpdate = false;
 		
+		/* Testing feature :-)
 		
+		if( _shopNpc )
+		{
+			SellItem(item,1); // @FIXME BIDON - pass item quantity
+			UpdateShop();
+		}
+		else */
 		
 		if (thePlayer.IsInCombat())
 		{
@@ -2057,27 +2172,17 @@ class CR4InventoryMenu extends CR4MenuBase
 			m_fxInventoryUpdateFilter.InvokeSelfOneArg( FlashArgUInt( GetTabIndexForSlot(slot) ));
 			
 			InventoryUpdateItem(horseItem);
-			
-			PaperdollUpdateAll(); 
+			//PaperdollRemoveItem(item);
+			PaperdollUpdateAll(); // Update all to avoid collision in itemIDs
 			
 			UpdateEncumbranceInfo();
 			
-			
-			if ( slot == EES_HorseTrophy && _inv.IsIdValid(horseItem) )
-			{
-				abls.Clear();
-				_inv.GetItemAbilities(horseItem, abls);
-				for (i=0; i < abls.Size(); i += 1)
-				{
-					if ( abls[i] == 'base_trophy_stats' )
-						continue;
-					thePlayer.RemoveAbility(abls[i]);
-				}
-			}
+			// Removing trophy ability from player
+			// TK: moved to horse manager as otherwise unequipping item not through UI (e.g. from quest or scripts) would not remove trophy ability on player
 			
 			PlayItemUnequipSound( _horsePaperdollInv.GetInventoryComponent().GetItemCategory(item) );
 			
-			return true; 
+			return true; // Choosing to end flow with horse items here since they are handled so different than other slotted items
 		}
 		
 		if( _containerInv )
@@ -2118,7 +2223,7 @@ class CR4InventoryMenu extends CR4MenuBase
 			_playerInv.UnequipItem( item );
 			filterType = _playerInv.GetFilterTypeByItem(item);
 			_playerInv.SetFilterType( filterType );
-			
+			//m_flashValueStorage.SetFlashInt("inventory.grid.player.tab.selected", filterType);			
 			UpdateInventoryFilter(filterType);
 			
 			if (forceInvAllUpdate)
@@ -2129,12 +2234,20 @@ class CR4InventoryMenu extends CR4MenuBase
 			{
 				InventoryUpdateItem(item);
 			}
+			
+			if (_inv.GetEnchantment(item) == 'Runeword 6')
+			{
+				AddEquippedPotionsToList(itemsList);
+			}
+			
 			PaperdollRemoveItem(item);
 			
 			if(_inv.IsItemBolt(item) && GetWitcherPlayer().GetItemEquippedOnSlot(EES_Bolt,itemOnSlot))
 			{
-				PaperdollUpdateItem(itemOnSlot);
+				itemsList.PushBack(itemOnSlot);
 			}
+			
+			PaperdollUpdateItemsList(itemsList);
 			
 			UpdatePlayerStatisticsData();
 		}
@@ -2143,7 +2256,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		
 		UpdateGuiSceneEntityItems();
 		
-			
+			////////INVENTORY BEVAHIOR ANIMATION EVENTS SWITCH
 		switch (_inv.GetItemCategory( item ))
 			{
 			case 'steelsword':
@@ -2167,7 +2280,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		m_fxInventoryUpdateFilter.InvokeSelfOneArg( FlashArgUInt( getTabFromFilter(filterType) ));
 	}
 	
-	event  OnDragItemStarted( itemId : SItemUniqueId )
+	event /*flash*/ OnDragItemStarted( itemId : SItemUniqueId )
 	{
 		var filterType : EInventoryFilterType;
 		var slot : EEquipmentSlots;
@@ -2184,13 +2297,13 @@ class CR4InventoryMenu extends CR4MenuBase
 		}
 	}
 	
-	event  OnEmptySlotActivate( equipID : int )
+	event /*flash*/ OnEmptySlotActivate( equipID : int )
 	{
 		var targetTabIndex : InventoryMenuTabIndexes;
 		
 		targetTabIndex = GetTabIndexForSlot(equipID);
 		
-		m_flashValueStorage.SetFlashInt("OnTabSelectRequested", -1); 
+		m_flashValueStorage.SetFlashInt("OnTabSelectRequested", -1); // hack
 		m_flashValueStorage.SetFlashInt("OnTabSelectRequested", targetTabIndex);
 	}
 	
@@ -2227,13 +2340,15 @@ class CR4InventoryMenu extends CR4MenuBase
 				}
 			case EES_Potion1:
 			case EES_Potion2:
+			case EES_Potion3:
+			case EES_Potion4:
 				return InventoryMenuTab_Potions;
 		}
 		
 		return InventoryMenuTab_Weapons;
 	}
 	
-	event  OnDropItem( item : SItemUniqueId, quantity : int ) 
+	event /*flash*/ OnDropItem( item : SItemUniqueId, quantity : int ) 
 	{
 		if (( _inv.ItemHasTag(item, 'SilverOil') || _inv.ItemHasTag(item, 'SteelOil') || _inv.ItemHasTag(item, 'Petard') || ( _inv.ItemHasTag(item, 'Potion') && _inv.GetItemCategory(item)!='edibles' ) ) && _playerInv.CanDrop(item))
 		{
@@ -2258,7 +2373,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		}
 	}
 
-	event  OnReadBook( item : SItemUniqueId ) 
+	event /*flash*/ OnReadBook( item : SItemUniqueId ) // not used now
 	{
 		var itemCategory : name;
 		var tutStateBooks : W3TutorialManagerUIHandlerStateBooks;
@@ -2268,7 +2383,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		
 		updateBook = !thePlayer.inv.IsBookRead(item);
 		
-		
+		//theSound.SoundEvent( 'gui_inventory_drop' );// #B sound - item drop
 		ReadBook(item);
 		
 		itemCategory = thePlayer.inv.GetItemCategory( item );
@@ -2278,7 +2393,7 @@ class CR4InventoryMenu extends CR4MenuBase
 			if ( !thePlayer.inv.ItemHasTag( item, 'BookReaded') ) 
 			{	
 				thePlayer.inv.AddItemTag(item,'BookReaded');
-				
+				//thePlayer.GetInventory().RemoveItem(item);
 				isSthLearned = true;
 				
 				UpdateData();
@@ -2309,7 +2424,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		}
 	}	
 		
-	event  OnUpgradeItem( item : SItemUniqueId, slot : int, quantity : int )
+	event /*flash*/ OnUpgradeItem( item : SItemUniqueId, slot : int, quantity : int )
 	{
 		var swordItem : SItemUniqueId;
 		if (thePlayer.IsInCombat())
@@ -2330,12 +2445,12 @@ class CR4InventoryMenu extends CR4MenuBase
 			if( _inv.IsIdValid(swordItem) )
 			{
 				_playerInv.UpgradeItem( swordItem, item );
-				UpdateData(); 
+				UpdateData(); //@FIXME BIDON - now we can update only two , previous and new one
 			}
 		}
 	}
 		
-	event  OnTransferItem( item : SItemUniqueId, quantity : int, moveToIdx : int )
+	event /*flash*/ OnTransferItem( item : SItemUniqueId, quantity : int, moveToIdx : int )
 	{
 		if( _currentInv == _containerInv )
 		{
@@ -2344,13 +2459,13 @@ class CR4InventoryMenu extends CR4MenuBase
 		else
 		{
 			GiveItem( item, quantity );
-			
+			//#B Add bolt mechanics fix for Taansfer
 		}
 		UpdateData();
 		UpdateContainer();
 	}
 	
-	event  OnSellItem( itemId : SItemUniqueId, quantity : int )
+	event /*flash*/ OnSellItem( itemId : SItemUniqueId, quantity : int )
 	{
 		var invItem : SInventoryItem;
 		var itemPrice : int;
@@ -2374,7 +2489,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		LogChannel('QP', "OnSellItem, quantity: " + quantity);
 		if ( quantity <= 1 )
 		{
-			
+			//#B Add bolt mechanics fix for Sell
 			newShopItem = SellItem( itemId, quantity );
 			if ( GetInvalidUniqueId() != newShopItem )
 			{
@@ -2387,7 +2502,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		}
 		else
 		{
-			
+			//if merchant doesn't have enough gold don't show quantity slider
 			if(_shopInv.GetInventoryComponent().GetMoney() < itemPrice)
 			{	
 				this.showNotification(GetLocStringByKeyExt("panel_shop_notification_shopkeeper_not_enough_money"));
@@ -2400,20 +2515,20 @@ class CR4InventoryMenu extends CR4MenuBase
 		}
 	}		
 	
-	event  OnBuyItem( item : SItemUniqueId, quantity : int, moveToIdx : int )
+	event /*flash*/ OnBuyItem( item : SItemUniqueId, quantity : int, moveToIdx : int )
 	{
 		var itemName : name;
 		var tutorialState : W3TutorialManagerUIHandlerStateShop;
 		var result : bool;
 		
-		
+		//theSound.SoundEvent( 'gui_inventory_drop' );// #B sound - item drop		
 		LogChannel('QP', "OnBuyItem, quantity: " + quantity);
 		itemName = _shopInv.GetItemName(item);
 		if (quantity <= 1)
 		{
 			result = BuyItem(item , quantity );
 			
-			
+			//if in shop tutorial
 			if(result && ShouldProcessTutorial('TutorialShopBuy') && theGame.GetTutorialSystem().uiHandler && theGame.GetTutorialSystem().uiHandler.GetCurrentStateName() == 'Shop' && itemName == 'Local pepper vodka')
 			{
 				tutorialState = (W3TutorialManagerUIHandlerStateShop)theGame.GetTutorialSystem().uiHandler.GetCurrentState();
@@ -2422,7 +2537,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		}
 		else
 		{
-			
+			//if player doesn't have enough gold don't show quantity slider
 			if(_shopInv.GetInventoryComponent().GetInventoryItemPriceModified( _shopInv.GetInventoryComponent().GetItem(item), false ) > thePlayer.GetMoney())
 			{			
 				showNotification( GetLocStringByKeyExt("panel_shop_notification_not_enough_money") );
@@ -2490,7 +2605,7 @@ class CR4InventoryMenu extends CR4MenuBase
 	
 	function GiveItem( item : SItemUniqueId, quantity : int )
 	{
-		if( _container && _container.OnTryToGiveItem( item ) ) 
+		if( _container && _container.OnTryToGiveItem( item ) ) // 
 		{
 			_playerInv.GiveItem( item, _containerInv, quantity );				
 		}
@@ -2500,7 +2615,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		}
 	}
 	
-	
+	//returns true if succeeded in buying
 	function BuyItem( item : SItemUniqueId, quantity : int ) : bool
 	{	
 		var filterType : EInventoryFilterType;
@@ -2516,14 +2631,14 @@ class CR4InventoryMenu extends CR4MenuBase
 		{
 			itemCategory = thePlayer.GetInventory().GetItemCategory( newItemID );
 			
-			if (itemCategory != 'gwint') 
+			if (itemCategory != 'gwint') // gwint cards are not shown, so don't force update them
 			{
 				_playerInv.SetFilterType( filterType );
 				UpdateInventoryFilter(filterType);
 				_playerInv.clearGridPosition(newItemID);
 				InventoryUpdateItem(newItemID);
 			}
-			
+			//PopulateTabData(getTabFromFilter(filterType));
 			
 			theSound.SoundEvent( 'gui_inventory_buy' );
 			
@@ -2599,7 +2714,7 @@ class CR4InventoryMenu extends CR4MenuBase
 				
 				if (preSellQty == 1 || preSellQty == quantity)
 				{
-					
+					//#J When Selling an item, we want it to forget its grid position so it gets properly reset when/if it gets looted again to a new valid position
 					uiDataGrid = _playerInv.GetInventoryComponent().GetInventoryItemUIData( item );
 					uiDataGrid.gridPosition = -1;
 					_playerInv.GetInventoryComponent().SetInventoryItemUIData( item, uiDataGrid );
@@ -2640,13 +2755,13 @@ class CR4InventoryMenu extends CR4MenuBase
 				}
 				else
 				{
-					OnPlaySoundEvent( "gui_inventory_drop" );
+					OnPlaySoundEvent( "gui_inventory_drop" );// #B sound - item drop
 				}
 				
 				if (_inv.IsItemCrossbow(item) && GetWitcherPlayer().GetItemEquippedOnSlot(EES_RangedWeapon,itemOnSlot))
 				{
-					
-					
+					// #J tricky reusing of itemOnSlot variable so inversing order on this if would cause problems
+					// This is so when dropping crossbow that isn't equipped, we don't clear stuff needlessly
 					if (itemOnSlot == item && GetWitcherPlayer().GetItemEquippedOnSlot(EES_Bolt,itemOnSlot))
 					{
 						updateBoltsInInv = !_inv.ItemHasTag(itemOnSlot,theGame.params.TAG_INFINITE_AMMO);
@@ -2661,7 +2776,7 @@ class CR4InventoryMenu extends CR4MenuBase
 					}
 				}
 				
-				FinalDropItem(item, quantity); 
+				FinalDropItem(item, quantity); // #J Not sure why this is in two functions, but keeping it this way in case
 				
 				PaperdollRemoveItem(item);
 				InventoryRemoveItem(item);
@@ -2676,7 +2791,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		}
 		else
 		{
-			OnPlaySoundEvent( "gui_global_denied" );
+			OnPlaySoundEvent( "gui_global_denied" );// #B sound - item drop
 		}
 		
 		return true;
@@ -2686,7 +2801,7 @@ class CR4InventoryMenu extends CR4MenuBase
 	{
 		var uiDataGrid : SInventoryItemUIData;
 		
-		
+		//#J When dropping an item, we want it to forget its grid position so it gets properly reset when/if it gets looted again to a new valid position
 		uiDataGrid = _inv.GetInventoryItemUIData( item );
 		uiDataGrid.gridPosition = -1;
 		_inv.SetInventoryItemUIData( item, uiDataGrid );
@@ -2727,7 +2842,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		}
 	}
 	
-	event  OnSetCurrentPlayerGrid( value : string )
+	event /*flash*/ OnSetCurrentPlayerGrid( value : string )
 	{
 		if( value == "inventory.grid.container" )
 		{
@@ -2755,7 +2870,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		}
 	}
 	
-	event  OnConsumeItem( item : SItemUniqueId ) 
+	event /*flash*/ OnConsumeItem( item : SItemUniqueId ) //, quantity : int ??
 	{
 		if (thePlayer.IsInCombat())
 		{
@@ -2780,18 +2895,18 @@ class CR4InventoryMenu extends CR4MenuBase
 		}
 	}
 	
-	event  OnMoveItem( item : SItemUniqueId, moveToIndex : int )
+	event /*flash*/ OnMoveItem( item : SItemUniqueId, moveToIndex : int )
 	{
-		
+		//PlaySoundEvent();
 		_playerInv.MoveItem( item , moveToIndex );
+		//UpdateItemData(item);
 		
-		
-		
+		//UpdateData();		
 		InventoryUpdateItem(item);
 		m_flashValueStorage.SetFlashInt("inventory.grid.player.offset",0);
 	}
 
-	event  OnMoveItems( item : SItemUniqueId, moveToIndex : int, itemSecond : SItemUniqueId, moveToSecondIndex : int )
+	event /*flash*/ OnMoveItems( item : SItemUniqueId, moveToIndex : int, itemSecond : SItemUniqueId, moveToSecondIndex : int )
 	{
 		var itemsList : array<SItemUniqueId>;
 		
@@ -2801,18 +2916,18 @@ class CR4InventoryMenu extends CR4MenuBase
 		itemsList.PushBack(itemSecond);
 		InventoryUpdateItems(itemsList);
 		
-		
-		
-		
-		
+		//PlaySoundEvent();
+		//UpdateData(); //@FIXME BIDON - now we can update only two , previous and new one		
+		//InventoryUpdateItem(item);
+		//InventoryUpdateItem(itemSecond);
 	}
 	
+	// TABS FILTERING EVENTS
 	
-	
-	event  OnContainerFilterSelected( filterType : EInventoryFilterType )
+	event /*flash*/ OnContainerFilterSelected( filterType : EInventoryFilterType )
 	{
-		
-		
+		//PlaySoundEvent();
+		//_containerInv.SetFilterType( filterType );
 		UpdateContainer();
 	}
 	
@@ -2823,9 +2938,11 @@ class CR4InventoryMenu extends CR4MenuBase
 		m_guiManager.UpdateUISavedData( GetMenuName(), UISavedData.openedCategories, '',UISavedData.selectedModule , UISavedData.gridItem, UISavedData.slotID );
 	}	
 	
-	
+	/*
+		------------- Context Managing ---------------
+	*/
 
-	event  OnModuleSelected(  moduleID : int, moduleBindingName : string )
+	event /*flash*/ OnModuleSelected(  moduleID : int, moduleBindingName : string )
 	{
 		LogChannel('CONTEXT'," OnModuleSelected " + moduleBindingName);
 		super.OnModuleSelected( moduleID, moduleBindingName );
@@ -2915,8 +3032,8 @@ class CR4InventoryMenu extends CR4MenuBase
 		ActivateContext(m_currentContext);
 	}
 	
-	
-	event  OnSelectInventoryItem(itemId:SItemUniqueId, slot:int, positionX:float, positionY:float)
+	// #Y: TODO: Merge this fucntions
+	event /*flash*/ OnSelectInventoryItem(itemId:SItemUniqueId, slot:int, positionX:float, positionY:float)
 	{
 		var inventoryGridContext : W3InventoryItemContext;
 		var tutorialState : W3TutorialManagerUIHandlerStateRunes;
@@ -2933,36 +3050,36 @@ class CR4InventoryMenu extends CR4MenuBase
 			inventoryGridContext.SetCurrentItem(itemId);
 		}
 		
-		
+		//if in rune tutorial
 		if(ShouldProcessTutorial('TutorialRunesSelectRune') && theGame.GetTutorialSystem().uiHandler && theGame.GetTutorialSystem().uiHandler.GetCurrentStateName() == 'Runes')
 		{
 			tutorialState = (W3TutorialManagerUIHandlerStateRunes)theGame.GetTutorialSystem().uiHandler.GetCurrentState();
 			tutorialState.OnSelectedItem(itemId);
 		}
-		
+		//if in books tutorial
 		if(ShouldProcessTutorial('TutorialBooksSelectTab') && theGame.GetTutorialSystem().uiHandler && theGame.GetTutorialSystem().uiHandler.GetCurrentStateName() == 'Books')
 		{
 			tutorialStateBooks = (W3TutorialManagerUIHandlerStateBooks)theGame.GetTutorialSystem().uiHandler.GetCurrentState();
 			tutorialStateBooks.OnSelectedItem(itemId);
 		}	
-		
+		//food equip tutorial
 		if(ShouldProcessTutorial('TutorialFoodSelectTab') && theGame.GetTutorialSystem().uiHandler && theGame.GetTutorialSystem().uiHandler.GetCurrentStateName() == 'Food')
 		{
 			tutorialStateFood = (W3TutorialManagerUIHandlerStateFood)theGame.GetTutorialSystem().uiHandler.GetCurrentState();
 			tutorialStateFood.OnSelectedItem(itemId);
 		}
-		
+		//recipe learning tutorial		
 		if(ShouldProcessTutorial('TutorialBooksSelectTab') && theGame.GetTutorialSystem().uiHandler && theGame.GetTutorialSystem().uiHandler.GetCurrentStateName() == 'RecipeReading')
 		{
 			tutorialStateRecipeReading = (W3TutorialManagerUIHandlerStateRecipeReading)theGame.GetTutorialSystem().uiHandler.GetCurrentState();
 			tutorialStateRecipeReading.OnSelectedItem(itemId);
 		}	
 	}
-	event  OnSelectPaperdollItem(itemId:SItemUniqueId, slot:int, positionX:float, positionY:float)
+	event /*flash*/ OnSelectPaperdollItem(itemId:SItemUniqueId, slot:int, positionX:float, positionY:float)
 	{
 		var paperdollContext : W3InventoryPaperdollContext;
 		
-		
+		// change inventory component for horse
 		if ( slot == EES_HorseBlinders || slot == EES_HorseSaddle || slot == EES_HorseBag || slot == EES_HorseTrophy )
 		{
 			OnSetCurrentPlayerGrid("inventory.paperdoll.horse");
@@ -2982,7 +3099,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		}
 	}
 	
-	event  OnSelectPlayerStat(statId : name)
+	event /*flash*/ OnSelectPlayerStat(statId : name)
 	{
 		var statContext : W3PlayerStatsContext;
 		statContext = (W3PlayerStatsContext) m_currentContext;
@@ -2999,7 +3116,7 @@ class CR4InventoryMenu extends CR4MenuBase
 	
 	function ReadBook( item : SItemUniqueId )
 	{
-		theSound.SoundEvent( 'gui_inventory_read' );
+		theSound.SoundEvent( 'gui_inventory_read' );// #B sound - item read
 		_playerInv.ReadBook( item );	
 		ShowBookPopup(GetLocStringByKeyExt(_inv.GetItemLocalizedNameByUniqueID(item)), _playerInv.GetBookText(item));
 	}
@@ -3018,7 +3135,25 @@ class CR4InventoryMenu extends CR4MenuBase
 		RequestSubMenu('PopupMenu', _bookPopupData);
 	}
 	
-	event  OnShowFullStats()
+	function ShowPainting(item : SItemUniqueId)
+	{
+		var itemName:name;
+		
+		if (_paintingPopupData)
+		{
+			delete _paintingPopupData;
+		}
+		
+		itemName = _inv.GetItemName(item);
+		
+		_paintingPopupData = new PaintingPopup in this;
+		_paintingPopupData.SetMessageTitle( GetLocStringByKeyExt(_inv.GetItemLocalizedNameByUniqueID(item)) );
+		_paintingPopupData.SetImagePath("img://icons/inventory/paintings/" + itemName + ".png");
+		
+		RequestSubMenu('PopupMenu', _paintingPopupData);
+	}
+	
+	event /*flash*/ OnShowFullStats()
 	{
 		if (_charStatsPopupData)
 		{
@@ -3031,13 +3166,13 @@ class CR4InventoryMenu extends CR4MenuBase
 		RequestSubMenu('PopupMenu', _charStatsPopupData);
 	}
 	
-	event  OnPlaySound( soundKey : string )
+	event /*flash*/ OnPlaySound( soundKey : string )
 	{
 		theSound.SoundEvent( soundKey );
 	}
 	
-	
-	event  OnInputHandled(NavCode:string, KeyCode:int, ActionId:int)
+	// #J Hackish way to handle the double click (context menu input is a pain in the ass)
+	event /*flash*/ OnInputHandled(NavCode:string, KeyCode:int, ActionId:int)
 	{
 		LogChannel('GFX', "OnInputHandled, NavCode: "+NavCode+"; actionId: "+ActionId);
 		if (m_currentContext)
@@ -3046,11 +3181,11 @@ class CR4InventoryMenu extends CR4MenuBase
 		}
 	}
 	
-	event  OnMouseInputHandled(NavCodeAnalog : string, itemId : SItemUniqueId, slotId:int, moduleBinding : string)
+	event /*flash*/ OnMouseInputHandled(NavCodeAnalog : string, itemId : SItemUniqueId, slotId:int, moduleBinding : string)
 	{
 		var curInvContext : W3InventoryItemContext;
 		
-		
+		// force change context
 		OnModuleSelected(0, moduleBinding);
 		
 		curInvContext = (W3InventoryItemContext) m_currentContext;
@@ -3062,7 +3197,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		}
 	}
 	
-	event  OnSetMouseInventoryComponent(moduleBinding : string, slotId:int)
+	event /*flash*/ OnSetMouseInventoryComponent(moduleBinding : string, slotId:int)
 	{
 		if( moduleBinding == "inventory.grid.container" )
 		{
@@ -3097,9 +3232,9 @@ class CR4InventoryMenu extends CR4MenuBase
 		}
 	}
 	
-	event  OnShowItemPopup( item : SItemUniqueId )
+	event /*flash*/ OnShowItemPopup( item : SItemUniqueId )
 	{
-		
+		// not in use
 	}
 	
 	public function ShowItemInfoPopup( item : SItemUniqueId ) : void
@@ -3118,7 +3253,7 @@ class CR4InventoryMenu extends CR4MenuBase
 	
 	public function OnItemPopupClosed():void
 	{
-		
+		// restore RTT
 		m_flashValueStorage.SetFlashBool( "render.to.texture.texture.visible", true);
 	}
 	
@@ -3139,9 +3274,9 @@ class CR4InventoryMenu extends CR4MenuBase
 		guiSceneController.SetEntityItems( true );	
 	}
 	
-	event  OnInventoryItemSelected(itemId:SItemUniqueId) : void
+	event /*flash*/ OnInventoryItemSelected(itemId:SItemUniqueId) : void
 	{
-		
+		// dummy
 	}
 	
 	public function ShowSelectionMode( sourceItem : SItemUniqueId, targetSlotList : array< int > )
@@ -3157,13 +3292,13 @@ class CR4InventoryMenu extends CR4MenuBase
 		
 		if (targetSlotList.Size() == 0)
 		{
-			
+			// TODO: Generic error messages ?
 			return;
 		}
 		
 		if (!_inv.IsIdValid(sourceItem))
 		{
-			
+			// TODO: Generic error messages ?
 			return;
 		}
 		
@@ -3201,7 +3336,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		OnModuleSelected(m_lastSelectedModuleID, m_lastSelectedModuleBindingName);
 	}
 	
-	event  OnSelectionModeCancelRequested()
+	event /*flash*/ OnSelectionModeCancelRequested()
 	{
 		var uiStateRunes : W3TutorialManagerUIHandlerStateRunes;
 		var uiStateArmorUpgrades : W3TutorialManagerUIHandlerStateArmorUpgrades;
@@ -3228,17 +3363,17 @@ class CR4InventoryMenu extends CR4MenuBase
 		HideSelectionMode();
 	}
 	
-	event  OnSelectionModeTargetChosen(targetSlot:int)
+	event /*flash*/ OnSelectionModeTargetChosen(targetSlot:int)
 	{
 		var alreadyEquippedItem:bool;
 		var curItemInSlot, otherMask : SItemUniqueId;
 		
 		alreadyEquippedItem = false;
 		
-		
+		// Direct equip of items
 		if (_playerInv.isPotionItem(m_selectionModeItem) || _playerInv.isPetardItem(m_selectionModeItem) || _playerInv.isQuickslotItem(m_selectionModeItem) || _playerInv.isFoodItem(m_selectionModeItem) )
 		{
-			
+			//mask check - can have only 1 equipped, so get item on the other quick slot
 			if(_inv.IsItemMask(m_selectionModeItem))
 			{
 				if(targetSlot == EES_Quickslot1)
@@ -3263,7 +3398,7 @@ class CR4InventoryMenu extends CR4MenuBase
 				InventoryRemoveItem(m_selectionModeItem);
 			}
 			
-			
+			//mask update - if other quickslot had mask then it was removed when new mask was equipped
 			if(_inv.IsItemMask(m_selectionModeItem) && _inv.IsItemMask(otherMask))
 			{
 				PaperdollRemoveItem(otherMask);
@@ -3394,7 +3529,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		return currentlySelectedTab;
 	}
 	
-	event  OnMoveToStash(item : SItemUniqueId)
+	event /*Flash*/ OnMoveToStash(item : SItemUniqueId)
 	{
 		MoveToStash(item);
 	}
@@ -3408,7 +3543,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		UpdateEncumbranceInfo();
 	}
 	
-	event  OnTakeFromStash(item : SItemUniqueId)
+	event /*Flash*/ OnTakeFromStash(item : SItemUniqueId)
 	{
 		TakeItemFromStash(item);
 	}
@@ -3433,40 +3568,79 @@ class CR4InventoryMenu extends CR4MenuBase
 	
 	public function UpdatePinnedCraftingItemInfo() : array<name>
 	{
-		var craftedItemArray : CScriptedFlashArray;
-		var schematic : SCraftingSchematic;
-		var recipe : SAlchemyRecipe;
-		var i : int;
-		var ingredientsList : array<name>;
+		var craftedItemArray 	 : CScriptedFlashArray;
+		var schematic 		 	 : SCraftingSchematic;		
+		var recipe 			 	 : SAlchemyRecipe;
+		var enchantment			 : SEnchantmentSchematic;
+		var enchantmentIcon  	 : string;
+		var enchantmentData  	 : CScriptedFlashObject;
+		var ingredientsList   	 : array<name>;
+		var i 				 	 : int;
+		var pinnedRecipe         : name;
 		
+		pinnedRecipe = theGame.GetGuiManager().PinnedCraftingRecipe;
 		craftedItemArray = m_flashValueStorage.CreateTempFlashArray();
 		
-		if (theGame.GetGuiManager().PinnedCraftingRecipe != '')
-		{
-			schematic = getCraftingSchematicFromName(theGame.GetGuiManager().PinnedCraftingRecipe);
-			
-			if (schematic.schemName != '')
+		if (pinnedRecipe != '')
+		{			
+			if (StrStartsWith(NameToString(pinnedRecipe), "Runeword") || StrStartsWith(NameToString(pinnedRecipe), "Glyphword"))
 			{
-				craftedItemArray.PushBackFlashObject(CreateRecipeFlashItem(schematic.craftedItemName, -1));
+				enchantment = getEnchantmentSchematicFromName(pinnedRecipe);
+				enchantmentData = m_flashValueStorage.CreateTempFlashObject();
 				
-				for( i = 0; i < schematic.ingredients.Size(); i += 1 )
+				enchantmentData.SetMemberFlashString("txtName", GetLocStringByKeyExt(enchantment.localizedName) );
+				
+				switch (enchantment.level)
 				{
-					ingredientsList.PushBack(schematic.ingredients[i].itemName);
-					craftedItemArray.PushBackFlashObject(CreateRecipeFlashItem(schematic.ingredients[i].itemName, schematic.ingredients[i].quantity));
+					case 3:
+						enchantmentIcon = "icons/inventory/enchantments/enchantment_level3.png";
+						break;
+					case 2:
+						enchantmentIcon = "icons/inventory/enchantments/enchantment_level2.png";
+						break;
+					case 1:
+					default:
+						enchantmentIcon = "icons/inventory/enchantments/enchantment_level1.png";
+						break;
+				}
+				enchantmentData.SetMemberFlashInt("gridSize", 1);
+				enchantmentData.SetMemberFlashInt("quantity", -1);
+				enchantmentData.SetMemberFlashString("imgLoc", enchantmentIcon);
+				craftedItemArray.PushBackFlashObject(enchantmentData);
+				
+				for( i = 0; i < enchantment.ingredients.Size(); i += 1 )
+				{
+					ingredientsList.PushBack(enchantment.ingredients[i].itemName);
+					craftedItemArray.PushBackFlashObject(CreateRecipeFlashItem(enchantment.ingredients[i].itemName, enchantment.ingredients[i].quantity));
 				}
 			}
 			else
 			{
-				recipe = getAlchemyRecipeFromName(theGame.GetGuiManager().PinnedCraftingRecipe);
+				schematic = getCraftingSchematicFromName(pinnedRecipe);
 				
-				if (recipe.recipeName != '')
+				if (schematic.schemName != '')
 				{
-					craftedItemArray.PushBackFlashObject(CreateRecipeFlashItem(recipe.cookedItemName, -1));
+					craftedItemArray.PushBackFlashObject(CreateRecipeFlashItem(schematic.craftedItemName, -1));
 					
-					for( i = 0; i < recipe.requiredIngredients.Size(); i += 1 )
+					for( i = 0; i < schematic.ingredients.Size(); i += 1 )
 					{
-						ingredientsList.PushBack(recipe.requiredIngredients[i].itemName);
-						craftedItemArray.PushBackFlashObject(CreateRecipeFlashItem(recipe.requiredIngredients[i].itemName, recipe.requiredIngredients[i].quantity));
+						ingredientsList.PushBack(schematic.ingredients[i].itemName);
+						craftedItemArray.PushBackFlashObject(CreateRecipeFlashItem(schematic.ingredients[i].itemName, schematic.ingredients[i].quantity));
+					}
+				}
+				else
+				{
+					recipe = getAlchemyRecipeFromName(pinnedRecipe);
+					
+					if (recipe.recipeName != '')
+					{
+						craftedItemArray.PushBackFlashObject(CreateRecipeFlashItem(recipe.cookedItemName, -1));
+						
+						for( i = 0; i < recipe.requiredIngredients.Size(); i += 1 )
+						{
+							ingredientsList.PushBack(recipe.requiredIngredients[i].itemName);
+							craftedItemArray.PushBackFlashObject(CreateRecipeFlashItem(recipe.requiredIngredients[i].itemName, recipe.requiredIngredients[i].quantity));
+						}
 					}
 				}
 			}
@@ -3501,6 +3675,7 @@ class CR4InventoryMenu extends CR4MenuBase
 				itemInShop = true;
 			}
 		}
+		
 		returnObject.SetMemberFlashBool("highlight", itemInShop);
 		
 		if (reqQuantity == -1)
@@ -3513,7 +3688,9 @@ class CR4InventoryMenu extends CR4MenuBase
 		}
 		
 		returnObject.SetMemberFlashInt("reqQuantity", reqQuantity);
+		
 		returnObject.SetMemberFlashString("imgLoc", dm.GetItemIconPath(item));
+		
 		if (itemType == IFT_Weapons || itemType == IFT_Armors)
 		{
 			returnObject.SetMemberFlashInt("gridSize", 2);
@@ -3533,7 +3710,7 @@ class CR4InventoryMenu extends CR4MenuBase
 	
 	function PlayOpenSoundEvent()
 	{
-		
-		
+		// Common Menu takes care of this for us
+		//OnPlaySoundEvent("gui_global_panel_open");	
 	}
 }
