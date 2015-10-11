@@ -532,7 +532,7 @@ class CR4InventoryMenu extends CR4MenuBase
 	private function PopulateDataForTab(tabIndex:int, entriesArray:CScriptedFlashArray):void
 	{
 		var l_flashObject : CScriptedFlashObject;
-
+		
 		l_flashObject = m_flashValueStorage.CreateTempFlashObject();
 		l_flashObject.SetMemberFlashInt("tabIndex", tabIndex);
 		l_flashObject.SetMemberFlashArray("tabData", entriesArray);
@@ -545,7 +545,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		{
 			m_fxShowSecondaryModulesSFF.InvokeSelfOneArg(FlashArgBool(false));
 		}
-	
+		
 		m_flashValueStorage.SetFlashObject( "player.inventory.menu.tabs.data" + tabIndex, l_flashObject );
 	}
 	
