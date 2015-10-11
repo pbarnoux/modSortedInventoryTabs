@@ -115,6 +115,7 @@ class CR4InventoryMenu extends CR4MenuBase
 	
 	// ++ modSortedInventoryTabs ++
 	private var _sitListener : SitListener;
+	private var _sitHasNewQuestItem: bool;
 	// -- modSortedInventoryTabs --
 
 	event /*flash*/ OnConfigUI()
@@ -293,6 +294,13 @@ class CR4InventoryMenu extends CR4MenuBase
 		SelectCurrentModule();
 		
 		SetInitialTabNewFlags();
+
+		// ++ modSortedInventoryTabs ++
+		if( _currentState == IMS_Player )
+		{
+			UpdateInventoryFilter( _sitListener.GuessTabIndex( _playerInv,  _sitHasNewQuestItem ) );
+		}
+		// -- modSortedInventoryTabs --
 	}
 	
 	event /*flash*/ OnSortingIndexChoosingStart()
@@ -556,7 +564,10 @@ class CR4InventoryMenu extends CR4MenuBase
 		hasNewItems.PushBack(_playerInv.HasNewFlagOnItem());
 		
 		_playerInv.SetFilterType( IFT_QuestItems );
-		hasNewItems.PushBack(_playerInv.HasNewFlagOnItem());
+		// ++ modSortedInventoryTabs ++
+		_sitHasNewQuestItem = _playerInv.HasNewFlagOnItem();
+		hasNewItems.PushBack( _sitHasNewQuestItem );
+		// -- modSortedInventoryTabs --
 		
 		_playerInv.SetFilterType( IFT_Default );
 		hasNewItems.PushBack(_playerInv.HasNewFlagOnItem());
