@@ -10,6 +10,22 @@ class SitListener
 	}
 
 	/*
+	Entry point called from OnConfigUI in inventoryMenu.ws
+	*/
+	public function GuessTabIndex( playerInv: W3GuiPlayerInventoryComponent, hasNewQuestItem: bool ): int
+	{
+		if( hasNewQuestItem )
+		{
+			if( IsNewQuestItemAnUnreadDocument( playerInv ) )
+			{
+				return IFT_QuestItems;
+			}
+		}
+		// playerInv.SetFilterType( IFT_AlchemyItems );
+		return IFT_AlchemyItems;
+	}
+
+	/*
 	Entry point called from PopulateTabData in inventoryMenu.ws.
 	*/
 	public function OnPopulateTabData( tabIndex: int, sortables: array < SitSortable >, out entriesArray: CScriptedFlashArray ): void
@@ -23,6 +39,44 @@ class SitListener
 			sorter.Initialize();
 			sorter.Sort( sortables, entriesArray );
 		}
+	}
+
+	/*
+	Returns true if the newly acquired item in the quest tab contains at least one unread document
+	*/
+	private function IsNewQuestItemAnUnreadDocument( playerInv: W3GuiPlayerInventoryComponent ): bool
+	{
+		var index   : int;
+		var inv     : CInventoryComponent;
+		var uiData  : SInventoryItemUIData;
+		var rawItems: array< SItemUniqueId >;
+		var item    : SItemUniqueId;
+
+		playerInv.SetFilterType( IFT_QuestItems );
+		inv = playerInv.GetInventoryComponent();
+		inv.GetAllItems( rawItems );
+
+		for( index = 0; index < rawItems.Size(); index += 1 )
+		{
+			item = rawItems[ index ];
+
+			if( ( (W3GuiBaseInventoryComponent) playerInv).ShouldShowItem( item ) )
+			{
+				uiData = inv.GetInventoryItemUIData( item );
+
+				if ( uiData.isNew )
+				{
+					if( inv.ItemHasTag( item, 'ReadableItem' ) )
+					{
+						if( !inv.IsBookRead( item ) )
+						{
+							return true;
+						}
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 	/*

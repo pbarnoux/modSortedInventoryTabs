@@ -115,6 +115,7 @@ class CR4InventoryMenu extends CR4MenuBase
 	
 	// ++ modSortedInventoryTabs ++
 	private var _sitListener : SitListener;
+	private var _sitHasNewQuestItem: bool;
 	// -- modSortedInventoryTabs --
 
 	event /*flash*/ OnConfigUI()
@@ -293,13 +294,13 @@ class CR4InventoryMenu extends CR4MenuBase
 		SelectCurrentModule();
 		
 		SetInitialTabNewFlags();
-		
-		//---=== modFriendlyHUD ===---
-		if( _currentState == IMS_Player && GetFHUDConfig().potionsTabOpensByDefault )
+
+		// ++ modSortedInventoryTabs ++
+		if( _currentState == IMS_Player )
 		{
-			UpdateInventoryFilter( IFT_AlchemyItems );
+			UpdateInventoryFilter( _sitListener.GuessTabIndex( _playerInv,  _sitHasNewQuestItem ) );
 		}
-		//---=== modFriendlyHUD ===---
+		// -- modSortedInventoryTabs --
 	}
 	
 	event /*flash*/ OnSortingIndexChoosingStart()
@@ -556,105 +557,31 @@ class CR4InventoryMenu extends CR4MenuBase
 		
 		currentFilter = _playerInv.GetFilterType();
 		
-		//---=== modFriendlyHUD ===---
 		_playerInv.SetFilterType( IFT_Weapons );
-		if ( GetFHUDConfig().ShowNewItmesInTab("Weapons") )
-		{
-			hasNewItems.PushBack(_playerInv.HasNewFlagOnItem());
-		}
-		else
-		{
-			ResetNewFlags();
-			hasNewItems.PushBack( false );
-		}
+		hasNewItems.PushBack(_playerInv.HasNewFlagOnItem());
 		
 		_playerInv.SetFilterType( IFT_AlchemyItems );
-		if ( GetFHUDConfig().ShowNewItmesInTab("Alchemy") )
-		{
-			hasNewItems.PushBack(_playerInv.HasNewFlagOnItem());
-		}
-		else
-		{
-			ResetNewFlags();
-			hasNewItems.PushBack( false );
-		}
+		hasNewItems.PushBack(_playerInv.HasNewFlagOnItem());
 		
 		_playerInv.SetFilterType( IFT_QuestItems );
-		if ( GetFHUDConfig().ShowNewItmesInTab("Quest") )
-		{
-			hasNewItems.PushBack(_playerInv.HasNewFlagOnItem());
-		}
-		else
-		{
-			ResetNewFlags();
-			hasNewItems.PushBack( false );
-		}
+		// ++ modSortedInventoryTabs ++
+		_sitHasNewQuestItem = _playerInv.HasNewFlagOnItem();
+		hasNewItems.PushBack( _sitHasNewQuestItem );
+		// -- modSortedInventoryTabs --
 		
 		_playerInv.SetFilterType( IFT_Default );
-		if ( GetFHUDConfig().ShowNewItmesInTab("Default") )
-		{
-			hasNewItems.PushBack(_playerInv.HasNewFlagOnItem());
-		}
-		else
-		{
-			ResetNewFlags();
-			hasNewItems.PushBack( false );
-		}
+		hasNewItems.PushBack(_playerInv.HasNewFlagOnItem());
 		
 		_playerInv.SetFilterType( IFT_Ingredients );
-		if ( GetFHUDConfig().ShowNewItmesInTab("Ingredients") )
-		{
-			hasNewItems.PushBack(_playerInv.HasNewFlagOnItem());
-		}
-		else
-		{
-			ResetNewFlags();
-			hasNewItems.PushBack( false );
-		}
+		hasNewItems.PushBack(_playerInv.HasNewFlagOnItem());
 		
 		_playerInv.SetFilterType( IFT_Books );
-		if ( GetFHUDConfig().ShowNewItmesInTab("Books") )
-		{
-			hasNewItems.PushBack(_playerInv.HasNewFlagOnItem());
-		}
-		else
-		{
-			ResetNewFlags();
-			hasNewItems.PushBack( false );
-		}
-		//---=== modFriendlyHUD ===---
+		hasNewItems.PushBack(_playerInv.HasNewFlagOnItem());
 		
 		_playerInv.SetFilterType(currentFilter);
 		
 		m_fxSetNewFlagsForTabs.InvokeSelfSixArgs(FlashArgBool(hasNewItems[0]), FlashArgBool(hasNewItems[1]), FlashArgBool(hasNewItems[2]), FlashArgBool(hasNewItems[3]), FlashArgBool(hasNewItems[4]), FlashArgBool(hasNewItems[5]));
 	}
-	
-	//---=== modFriendlyHUD ===---
-	public function ResetNewFlags()
-	{
-		var i : int;
-		var item : SItemUniqueId;
-		var curInventory : CInventoryComponent;
-		var rawItems : array< SItemUniqueId >;
-		var uiData : SInventoryItemUIData;
-		
-		curInventory = _playerInv.GetInventoryComponent();
-		curInventory.GetAllItems( rawItems );
-		for ( i = 0; i < rawItems.Size(); i += 1 )
-		{		
-			item = rawItems[i];
-			if ( _playerInv.GetFilterTypeByItem( item ) == _playerInv.GetFilterType() ) // this depends on current FilterType
-			{
-				uiData = curInventory.GetInventoryItemUIData( item );
-				if ( uiData.isNew )
-				{
-					uiData.isNew = false;
-					curInventory.SetInventoryItemUIData( item, uiData );
-				}
-			}
-		}
-	}
-	//---=== modFriendlyHUD ===---
 	
 	public function getTabFromItem(item:SItemUniqueId):int
 	{
