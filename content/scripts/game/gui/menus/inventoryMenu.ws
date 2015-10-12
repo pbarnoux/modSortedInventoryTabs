@@ -522,11 +522,12 @@ class CR4InventoryMenu extends CR4MenuBase
 				// -- modSortedInventoryTabs --
 				break;
 			}
+
+			// ++ modSortedInventoryTabs ++
+			_sitListener.OnPopulateTabData( tabIndex, sortables, l_flashArray );
+			// -- modSortedInventoryTabs --
 		}
 		
-		// ++ modSortedInventoryTabs ++
-		_sitListener.OnPopulateTabData( tabIndex, sortables, l_flashArray );
-		// -- modSortedInventoryTabs --
 		PopulateDataForTab(tabIndex, l_flashArray);
 	}
 	
