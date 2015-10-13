@@ -45,7 +45,7 @@ class SitBookSorter extends SitSorter
 					_categories.PushBack( _others );
 			}
 		}
-		LogChannel( 'MOD_SIT', "SitBookSorter initialized ; number of categories : " + _categories.Size());
+		LogChannel( 'MOD_SIT', "SitBookSorter initialized ; number of categories : " + _categories.Size() );
 	}
 
 	/*

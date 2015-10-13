@@ -65,7 +65,7 @@ class SitPotionSorter extends SitSorter
 					_categories.PushBack( _quests );
 			}
 		}
-		LogChannel( 'MOD_SIT', "SitPotionSorter initialized ; number of categories : " + _categories.Size());
+		LogChannel( 'MOD_SIT', "SitPotionSorter initialized ; number of categories : " + _categories.Size() );
 	}
 
 	/*

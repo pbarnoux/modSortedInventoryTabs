@@ -6,7 +6,7 @@ class SitListener
 {
 	public function Initialize(): void
 	{
-		LogChannel( 'MOD_SIT', "SitListener initialized");
+		LogChannel( 'MOD_SIT', "SitListener initialized" );
 	}
 
 	/*
@@ -21,7 +21,6 @@ class SitListener
 				return IFT_QuestItems;
 			}
 		}
-		// playerInv.SetFilterType( IFT_AlchemyItems );
 		return IFT_AlchemyItems;
 	}
 
