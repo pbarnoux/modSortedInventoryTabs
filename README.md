@@ -4,21 +4,64 @@ This branch tracks changes in
 [FriendlyHUD](http://www.nexusmods.com/witcher3/mods/365/?) mod to ensure both
 mods are compatible by removing the sorting logic of FriendlyHUD.
 
-##Installation
+There are no release for this branch, it always matches the latest release on
+master.
 
-The main site for all information related to this mod is:
-[http://www.nexusmods.com/witcher3/mods/770/?](http://www.nexusmods.com/witcher3/mods/770/?).
+#Alterations to the vanilla game
 
-Packages available on the nexus site can be used with the Nexus Mod Manager
-tool.
+##Default tab selection
 
-##Manual installation
-Locate your `game install folder` (e.g. `C:\GoG\The Witcher 3 Wild Hunt`).
-Create a `mods` directory if it does not exist already.
+When opening the player inventory, the default tab is either the quest or the
+usable tab instead of being always the weapon tab (vanilla).
+
+Having at least one new (starred) unread document will prompt the quest tab
+when opening the inventory. Otherwise, the inventory opens on the usable tab.
+
+##Sorting items inside inventory tabs
+
+The vanilla game allows to sort items according to some parameters including
+the type, but the result is not often user friendly.
+
+SIT splits items into categories, and sort categories. Default sort order is:
+
+- usable tab: steel oil > silver oil > potion > decoction > bomb > other (food)
+  > quest item (single use item);
+- quest and book tabs: unread document > already read document > other.
+
+Inside each category, items are sorted according to some simple algorithm:
+
+- usable tab: by quality first (superior > enhanced > normal), in case of tie
+  by the localized name;
+- quest and book tabs: new (starred) items first, in case of tie by the the
+  localized name.
+
+#Manual installation
+Locate the `game install folder` (for instance `C:\GoG\The Witcher3`) on the
+hard drive. This folder should contain a `bin` and `content` directories
+amongst others.  Create a `mods` directory if it does not exist already.
 
 Download a release archive and unpack it in your `game install folder/mods`
-directory.
+directory. The game engine will compile scripts when started (one time only).
 
-##Troubleshooting
-Some users having upgraded the game to 1.10 encounter issues to recompile
-scripts. This is currently being addressed.
+#Compatibility
+
+##The Witcher 3: The Wild Hunt
+
+###Gamepad controller
+
+As explained in [issue 2][issue_2], using a gamepad always trigger a quick sort
+before showing the HUD content. Mod sort output is totally bypassed by the HUD
+engine.
+
+###Ingame quick sort and filter features
+
+These features sorts the inventory using an algorithm coded inside action
+scripts. At the moment, this mod cannot override the game logic set in action
+scripts. Calling these features will always bypass this mod.
+
+##Other mods
+
+Refer to the documentation on the [Nexus site][nexus].
+
+[nexus]: http://www.nexusmods.com/witcher3/mods/770/?
+[issue_2]: https://github.com/pbarnoux/modSortedInventoryTabs/issues/2
