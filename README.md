@@ -28,13 +28,6 @@ Inside each category, items are sorted according to some simple algorithm:
 - quest and book tabs: new (starred) items first, in case of tie by the the
   localized name.
 
-### Limitations
-
-- Using the quick sort or the filter ingame functions will bypass SIT logic;
-- Playing with a gamepad always trigger the quick sort function before showing
-  items which means that SIT logic is always bypassed when playing with a
-  gamepad.
-
 #Manual installation
 Locate the `game install folder` (for instance `C:\GoG\The Witcher3`) on the
 hard drive. This folder should contain a `bin` and `content` directories
@@ -51,7 +44,7 @@ directory. The game engine will compile scripts when started (one time only).
 
 - [release 1.2.1][1.2.1] sorts the content of the usable, quest and book tabs.
   Menu opens on quest or usable tab as explained in the [default tab
-  selection][tab_select] section:
+  selection](#default-tab-selection) section:
 - [release 1.1.1][1.1.1] sorts the content of the usable, quest and book tabs.
 
 ###Version 1.08.4
@@ -62,6 +55,18 @@ I have not enough time to test bug fixes and new features both on the version
 1.10 and version 1.08 of the game. I made it simple to do it through
 cherry-picking should a new release would be needed.
 
+###Gamepad controller
+
+As explained in [issue 2][issue_2], using a gamepad always trigger a quick sort
+before showing the HUD content. Mod sort output is totally bypassed by the HUD
+engine.
+
+###Ingame quick sort and filter features
+
+These features sorts the inventory using an algorithm coded inside action
+scripts. At the moment, this mod cannot override the game logic set in action
+scripts. Calling these features will always bypass this mod.
+
 ##Other mods
 
 Refer to the documentation on the [Nexus site][nexus].
@@ -70,3 +75,4 @@ Refer to the documentation on the [Nexus site][nexus].
 [1.1.1]: https://github.com/pbarnoux/modSortedInventoryTabs/releases/tag/1.1.1
 [1.0.1]: https://github.com/pbarnoux/modSortedInventoryTabs/releases/tag/1.0.1
 [nexus]: http://www.nexusmods.com/witcher3/mods/770/?
+[issue_2]: https://github.com/pbarnoux/modSortedInventoryTabs/issues/2
