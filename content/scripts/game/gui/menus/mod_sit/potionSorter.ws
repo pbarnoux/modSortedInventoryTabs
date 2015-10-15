@@ -19,13 +19,13 @@ Sort logic adapted to the 'usable tab' of the inventory.
 */
 class SitPotionSorter extends SitSorter
 {
-	private var _steel_oils : array < SitSortable >;
-	private var _silver_oils: array < SitSortable >;
-	private var _potions    : array < SitSortable >;
-	private var _mutagens   : array < SitSortable >;
-	private var _bombs      : array < SitSortable >;
-	private var _others     : array < SitSortable >;
-	private var _quests     : array < SitSortable >;
+	protected var _steel_oils : array < SitSortable >;
+	protected var _silver_oils: array < SitSortable >;
+	protected var _potions    : array < SitSortable >;
+	protected var _mutagens   : array < SitSortable >;
+	protected var _bombs      : array < SitSortable >;
+	protected var _others     : array < SitSortable >;
+	protected var _quests     : array < SitSortable >;
 
 	/*
 	Create containers for each category.

@@ -46,7 +46,7 @@ class SitSortable
 	}
 
 	/*
-	Returns the wrapped localized name
+	Returns true if this item is readable
 	*/
 	public function IsReadable(): bool
 	{
