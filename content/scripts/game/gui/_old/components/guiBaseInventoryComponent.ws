@@ -203,7 +203,7 @@ abstract class W3GuiBaseInventoryComponent
 		}
 	}
 
-	function CreateSortableForFlashObject( item: SItemUniqueId, flashObject: CScriptedFlashObject ): SitSortable
+	protected function CreateSortableForFlashObject( item: SItemUniqueId, flashObject: CScriptedFlashObject ): SitSortable
 	{
 		var sortable: SitSortable;
 		sortable = new SitSortable in this;
