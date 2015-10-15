@@ -1586,6 +1586,13 @@ class CR4InventoryMenu extends CR4MenuBase
 		{
 			delete _paintingPopupData;
 		}
+
+		// ++ modSortedInventoryTabs ++
+		if ( _sitListener )
+		{
+			delete _sitListener;
+		}
+		// -- modSortedInventoryTabs --
 	}
 
 	event /*flash*/ OnCloseMenu()
