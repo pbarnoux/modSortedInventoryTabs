@@ -22,6 +22,7 @@ class SitListener
 			LogChannel( 'MOD_SIT', "SitListener.OnPopulateTabData" );
 			sorter.Initialize();
 			sorter.Sort( sortables, entriesArray );
+			delete sorter;
 		}
 	}
 
