@@ -45,7 +45,7 @@ class SitListener
 	/*
 	Returns true if the newly acquired item in the quest tab contains at least one unread document
 	*/
-	private function IsNewQuestItemAnUnreadDocument( playerInv: W3GuiPlayerInventoryComponent ): bool
+	protected function IsNewQuestItemAnUnreadDocument( playerInv: W3GuiPlayerInventoryComponent ): bool
 	{
 		var index   : int;
 		var inv     : CInventoryComponent;
@@ -84,7 +84,7 @@ class SitListener
 	Returns the sorter instance matching the requested tab
 	Returns NULL if the tab is not handled (yet) by this mod
 	*/
-	private function GetSorter( tabIndex: int ): SitSorter
+	protected function GetSorter( tabIndex: int ): SitSorter
 	{
 		switch( tabIndex )
 		{

@@ -15,9 +15,9 @@ Sort logic adapted to the 'quest tab' of the inventory.
 */
 class SitBookSorter extends SitSorter
 {
-	private var _unread: array < SitSortable >;
-	private var _read  : array < SitSortable >;
-	private var _others: array < SitSortable >;
+	protected var _unread: array < SitSortable >;
+	protected var _read  : array < SitSortable >;
+	protected var _others: array < SitSortable >;
 
 	/*
 	Create containers for each category.
