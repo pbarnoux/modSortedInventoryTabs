@@ -31,9 +31,10 @@ class SitPotionSorter extends SitSorter
 	Create containers for each category.
 	Containers are sorted accorded to the SitPotionCategory enumeration.
 	*/
-	public function Initialize(): void
+	public function Initialize( optional delegate: SitSorter ): void
 	{
 		var index: int;
+		super.Initialize( delegate );
 
 		/*
 		Currently still looking for a way to obtain the number of elements of an enum.

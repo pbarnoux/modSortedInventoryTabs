@@ -451,6 +451,30 @@ class W3GuiPlayerInventoryComponent extends W3GuiBaseInventoryComponent
 		flashObject.SetMemberFlashBool( "canDrop", canDrop );
 		flashObject.SetMemberFlashBool( "disableAction", itemNotForSale );
 	}
+
+	// ++ modSortedInventoryTabs ++
+	/*
+	Overrides CreateSortableForFlashObject in guiBaseInventoryComponent to add shop related stuff
+	*/
+	protected function CreateSortableForFlashObject( item: SItemUniqueId, flashObject: CScriptedFlashObject ): SitSortable
+	{
+		var sortable: SitSortable;
+		var invItem : SInventoryItem;
+		var itemCost: int;
+
+		invItem = GetInventoryComponent().GetItem( item );
+		itemCost = _shopInvCmp.GetInventoryComponent().GetInventoryItemPriceModified( invItem, true );
+		sortable = new SitSortable in this;
+		sortable.Initialize (
+			flashObject,
+			_inv.GetItemName( item ),
+			GetLocStringByKeyExt( _inv.GetItemLocalizedNameByUniqueID( item ) ),
+			_inv.ItemHasTag(item, 'ReadableItem'),
+			itemCost > 0  && !_inv.ItemHasTag( item, 'Quest' )
+		);
+		return sortable;
+	}
+	// -- modSortedInventoryTabs --
 	
 	function GetOnlyMiscItems( out items : array<SItemUniqueId> ) : void
 	{

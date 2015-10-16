@@ -9,16 +9,19 @@ class SitSortable
 	private var _name         : string;
 	private var _localizedName: string;
 	private var _readable     : bool; default _readable = false;
+	private var _sellable     : bool; default _sellable = false;
 
 	public function Initialize( flashObject: CScriptedFlashObject,
 		baseName: string,
 		localizedName: string,
-		optional readable: bool ): void
+		optional readable: bool,
+		optional sellable: bool	): void
 	{
 		_flashObject = flashObject;
 		_name = baseName;
 		_localizedName = localizedName;
 		_readable = readable;
+		_sellable = sellable;
 	}
 
 	/*
@@ -51,6 +54,14 @@ class SitSortable
 	public function IsReadable(): bool
 	{
 		return _readable;
+	}
+
+	/*
+	Returns true if this item can be sold
+	*/
+	public function IsSellable(): bool
+	{
+		return _sellable;
 	}
 
 	/*
