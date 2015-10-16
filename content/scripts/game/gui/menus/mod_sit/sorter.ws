@@ -3,11 +3,12 @@ Base logic of the sorting mechanism. Specific features are found in methods over
 */
 abstract class SitSorter
 {
-	protected var _categories : array < array < SitSortable > >;
+	protected var _categories: array < array < SitSortable > >;
+	protected var _delegate  : SitSorter;
 
-	public function Initialize(): void
+	public function Initialize( optional delegate: SitSorter ): void
 	{
-		LogChannel( 'MOD_SIT', "SitSorter initialized" );
+		_delegate = delegate;
 	}
 
 	/*
@@ -26,10 +27,24 @@ abstract class SitSorter
 		{
 			element = sortables[ index ];
 			categoryIndex = GetCategoryIndex( element );
-			AddToCategory( categoryIndex, element );
+
+			if( categoryIndex >= 0)
+			{
+				AddToCategory( categoryIndex, element );
+			}
+			else
+			{
+				categoryIndex = _delegate.GetCategoryIndex( element );
+				_delegate.AddToCategory( categoryIndex, element );
+			}
 		}
 		entriesArray.ClearElements();
 		FlattenCategories( entriesArray );
+
+		if( _delegate )
+		{
+			_delegate.FlattenCategories( entriesArray );
+		}
 		length = entriesArray.GetLength();
 		LogChannel( 'MOD_SIT', "SitSorter.Sort sorted " + length + " elements" );
 	}
@@ -40,7 +55,7 @@ abstract class SitSorter
 	protected function GetCategoryIndex( element: SitSortable ): int
 	{
 		// Make sure to always override this method, unfortunately, cannot put it abstract
-		return 0;
+		return -1;
 	}
 
 	/*

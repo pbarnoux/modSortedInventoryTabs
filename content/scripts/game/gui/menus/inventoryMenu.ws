@@ -204,7 +204,14 @@ class CR4InventoryMenu extends CR4MenuBase
 		_tooltipDataProvider.initialize(_inv, m_flashValueStorage);
 		
 		// ++ modSortedInventoryTabs ++
-		_sitListener = new SitListener in this;
+		if( _shopNpc )
+		{
+			_sitListener = new SitShopListener in this;
+		}
+		else
+		{
+			_sitListener = new SitListener in this;
+		}
 		_sitListener.Initialize();
 		// -- modSortedInventoryTabs --
 
