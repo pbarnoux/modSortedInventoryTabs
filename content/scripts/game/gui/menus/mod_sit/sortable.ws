@@ -8,20 +8,45 @@ class SitSortable
 	private var _flashObject  : CScriptedFlashObject;
 	private var _name         : string;
 	private var _localizedName: string;
-	private var _readable     : bool; default _readable = false;
-	private var _sellable     : bool; default _sellable = false;
+	private var _unitPrice    : int;
+	private var _readable     : bool; default _readable   = false;
+	private var _sellable     : bool; default _sellable   = false;
+	private var _consumable   : bool; default _consumable = false;
+	private var _freeForUse   : bool; default _freeForUse = false;
 
 	public function Initialize( flashObject: CScriptedFlashObject,
 		baseName: string,
 		localizedName: string,
-		optional readable: bool,
-		optional sellable: bool	): void
+		unitPrice: int ): void
 	{
 		_flashObject = flashObject;
 		_name = baseName;
 		_localizedName = localizedName;
-		_readable = readable;
-		_sellable = sellable;
+		_unitPrice = unitPrice;
+	}
+
+	/*
+	Some setters to modify this object state.
+	I like immutability, but too many fields now for a single initializer. KISS wins in this case.
+	*/
+	public function SetReadable( flag: bool ): void
+	{
+		_readable = flag;
+	}
+
+	public function SetSellable( flag: bool ): void
+	{
+		_sellable = flag;
+	}
+
+	public function SetConsumable( flag: bool ): void
+	{
+		_consumable = flag;
+	}
+
+	public function SetFreeForUse( flag: bool ): void
+	{
+		_freeForUse = flag;
 	}
 
 	/*
@@ -49,6 +74,14 @@ class SitSortable
 	}
 
 	/*
+	Returns the unit price
+	*/
+	public function GetUnitPrice(): int
+	{
+		return _unitPrice;
+	}
+
+	/*
 	Returns true if this item is readable
 	*/
 	public function IsReadable(): bool
@@ -62,6 +95,22 @@ class SitSortable
 	public function IsSellable(): bool
 	{
 		return _sellable;
+	}
+
+	/*
+	Returns true if this item can be consumed
+	*/
+	public function IsConsumable(): bool
+	{
+		return _consumable;
+	}
+
+	/*
+	Returns true if using this item cost nothing to the player (hey that is a fantasy world after all)
+	*/
+	public function IsFreeForUse(): bool
+	{
+		return _freeForUse;
 	}
 
 	/*

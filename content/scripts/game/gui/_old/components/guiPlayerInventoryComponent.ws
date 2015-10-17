@@ -426,13 +426,9 @@ class W3GuiPlayerInventoryComponent extends W3GuiBaseInventoryComponent
 		
 		if (_shopInvCmp)
 		{
-			invItem = GetInventoryComponent().GetItem( itemId );
-			itemCost = _shopInvCmp.GetInventoryComponent().GetInventoryItemPriceModified( invItem, true );
-			
-			if ( itemCost <= 0  || _inv.ItemHasTag(itemId,'Quest'))
-			{
-				itemNotForSale = true;
-			}
+			// ++ modSortedInventoryTabs ++
+			itemNotForSale = !IsSellable( itemId );
+			// -- modSortedInventoryTabs --
 			canDrop = false;
 		}
 		else
@@ -459,20 +455,26 @@ class W3GuiPlayerInventoryComponent extends W3GuiBaseInventoryComponent
 	protected function CreateSortableForFlashObject( item: SItemUniqueId, flashObject: CScriptedFlashObject ): SitSortable
 	{
 		var sortable: SitSortable;
+		var sellable: bool;
+
+		sortable = super.CreateSortableForFlashObject( item, flashObject );
+		sellable = IsSellable( item );
+		sortable.SetSellable( sellable );
+		return sortable;
+	}
+
+	/*
+	By inserting this function in the legacy code and the mod, any change in legacy logic will create a conflict
+	Quickly asserts whether the mod stays compliant with new game version or not
+	*/
+	protected function IsSellable( item: SItemUniqueId ): bool
+	{
 		var invItem : SInventoryItem;
 		var itemCost: int;
 
 		invItem = GetInventoryComponent().GetItem( item );
 		itemCost = _shopInvCmp.GetInventoryComponent().GetInventoryItemPriceModified( invItem, true );
-		sortable = new SitSortable in this;
-		sortable.Initialize (
-			flashObject,
-			_inv.GetItemName( item ),
-			GetLocStringByKeyExt( _inv.GetItemLocalizedNameByUniqueID( item ) ),
-			_inv.ItemHasTag(item, 'ReadableItem'),
-			itemCost > 0  && !_inv.ItemHasTag( item, 'Quest' )
-		);
-		return sortable;
+		return itemCost > 0  && !_inv.ItemHasTag( item, 'Quest' );
 	}
 	// -- modSortedInventoryTabs --
 	
