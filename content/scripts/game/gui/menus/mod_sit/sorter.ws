@@ -61,12 +61,18 @@ abstract class SitSorter
 	/*
 	Compares two sortable elements between them
 	Returns a negative integer if the left element should be sorted before the right one,
-	0 if both elements cannot be distinguished, a positive integer otherwise
+	0 if both elements cannot be distinguished, a positive integer otherwise.
+	By default, compares on localized name in natural order (case insensitive)
 	*/
-	protected function Compare( left: SitSortable, right: SitSortable ): int
+	protected function Compare( left: SitSortable, right: SitSortable, optional categoryIndex: int ): int
 	{
-		// Make sure to always override this method, unfortunately, cannot put it abstract
-		return 0;
+		var l_localizedName, r_localizedName: string;
+		var strLen: int;
+
+		l_localizedName = left.GetLocalizedName();
+		r_localizedName = right.GetLocalizedName();
+		strLen = Min( StrLen( l_localizedName ), StrLen( r_localizedName ) );
+		return StrCmp( l_localizedName, r_localizedName, strLen, true );
 	}
 
 	/*
@@ -81,7 +87,7 @@ abstract class SitSorter
 
 		for( index = 0; index < length; index += 1 )
 		{
-			if ( Compare( element, _categories[ categoryIndex ][ index ] ) < 0 )
+			if ( Compare( element, _categories[ categoryIndex ][ index ], categoryIndex ) < 0 )
 			{
 				_categories[ categoryIndex ].Insert( index, element );
 				return;

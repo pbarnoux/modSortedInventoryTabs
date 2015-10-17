@@ -121,23 +121,19 @@ class SitPotionSorter extends SitSorter
 	Overrides Compare from sorter.ws
 	Compares two sortable elements between them
 	Returns a negative integer if the left element should be sorted before the right one,
-	0 if both elements cannot be distinguished, a positive integer otherwise
+	0 if both elements cannot be distinguished, a positive integer otherwise.
+	Compare by quality first, then by localized name.
 	*/
-	protected function Compare( left: SitSortable, right: SitSortable ): int
+	protected function Compare( left: SitSortable, right: SitSortable, optional categoryIndex: int ): int
 	{
-		var l_localizedName, r_localizedName: string;
-		var l_quality, r_quality, strLen    : int;
+		var l_quality, r_quality: int;
 
 		l_quality = left.GetFlashObject().GetMemberFlashInt( "quality" );
 		r_quality = right.GetFlashObject().GetMemberFlashInt( "quality" );
-		l_localizedName = left.GetLocalizedName();
-		r_localizedName = right.GetLocalizedName();
 
 		if ( l_quality == r_quality )
 		{
-			// Both items have same quality, sort by name then
-			strLen = Min( StrLen( l_localizedName ), StrLen( r_localizedName ) );
-			return StrCmp( l_localizedName, r_localizedName, strLen, true );
+			return super.Compare( left, right );
 		}
 		return r_quality - l_quality;
 	}

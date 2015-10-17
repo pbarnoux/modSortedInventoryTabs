@@ -32,21 +32,4 @@ class SitShopSorter extends SitSorter
 		// Not in this sorter league
 		return -1;
 	}
-
-	/*
-	Overrides Compare from sorter.ws
-	Compares two sellables elements between them
-	Returns a negative integer if the left element should be sorted before the right one,
-	0 if both elements cannot be distinguished, a positive integer otherwise
-	*/
-	protected function Compare( left: SitSortable, right: SitSortable ): int
-	{
-		var l_localizedName, r_localizedName: string;
-		var strLen: int;
-
-		l_localizedName = left.GetLocalizedName();
-		r_localizedName = right.GetLocalizedName();
-		strLen = Min( StrLen( l_localizedName ), StrLen( r_localizedName ) );
-		return StrCmp( l_localizedName, r_localizedName, strLen, true );
-	}
 }
