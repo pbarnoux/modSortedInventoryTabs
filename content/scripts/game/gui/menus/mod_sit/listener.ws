@@ -99,6 +99,10 @@ class SitListener
 			case InventoryMenuTab_QuestItems:
 			case InventoryMenuTab_Books:
 				return new SitBookSorter in this;
+			case InventoryMenuTab_Ingredients:
+				return new SitAlchemySorter in this;
+			case InventoryMenuTab_Default:
+				return new SitOtherSorter in this;
 			default:
 				return NULL;
 		}

@@ -70,25 +70,20 @@ class SitBookSorter extends SitSorter
 	Overrides Compare from sorter.ws
 	Compares two sortable elements between them
 	Returns a negative integer if the left element should be sorted before the right one,
-	0 if both elements cannot be distinguished, a positive integer otherwise
+	0 if both elements cannot be distinguished, a positive integer otherwise.
+	Newest items first, then sort by name.
 	*/
-	protected function Compare( left: SitSortable, right: SitSortable ): int
+	protected function Compare( left: SitSortable, right: SitSortable, optional categoryIndex: int ): int
 	{
-		// Newest items first, then sort by name
 		var l_new, r_new: bool;
-		var l_localizedName, r_localizedName: string;
-		var strLen: int;
 
 		l_new = left.GetFlashObject().GetMemberFlashBool( "isNew" );
 		r_new = right.GetFlashObject().GetMemberFlashBool( "isNew" );
-		l_localizedName = left.GetLocalizedName();
-		r_localizedName = right.GetLocalizedName();
 
 		if ( l_new == r_new )
 		{
 			// Same state, name wins
-			strLen = Min( StrLen( l_localizedName ), StrLen( r_localizedName ) );
-			return StrCmp( l_localizedName, r_localizedName, strLen, true );
+			return super.Compare( left, right );
 		}
 
 		if ( l_new )

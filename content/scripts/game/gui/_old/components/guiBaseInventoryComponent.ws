@@ -211,9 +211,21 @@ abstract class W3GuiBaseInventoryComponent
 			flashObject,
 			_inv.GetItemName( item ),
 			GetLocStringByKeyExt( _inv.GetItemLocalizedNameByUniqueID( item ) ),
-			_inv.ItemHasTag(item, 'ReadableItem')
+			_inv.GetItemPrice( item )
 		);
+		sortable.SetReadable( IsReadable( item ) );
+		sortable.SetConsumable( _inv.ItemHasTag( item, theGame.params.TAG_ALCHEMY_REFILL_ALCO ) );
+		sortable.SetFreeForUse( _inv.ItemHasTag( item, theGame.params.TAG_INFINITE_USE ) );
 		return sortable;
+	}
+
+	/*
+	By inserting this function in the legacy code and the mod, any change in legacy logic will create a conflict
+	Quickly asserts whether the mod stays compliant with new game version or not
+	*/
+	protected function IsReadable( item: SItemUniqueId ): bool
+	{
+		return _inv.ItemHasTag( item, 'ReadableItem' );
 	}
 	// -- modSortedInventoryTabs --
 
@@ -441,8 +453,10 @@ abstract class W3GuiBaseInventoryComponent
 			}
 		}		
 		
-		if( _inv.ItemHasTag(item, 'ReadableItem'))
+		// ++ modSortedInventoryTabs ++
+		if( IsReadable( item ) )
 		{
+		// -- modSortedInventoryTabs --
 			bRead = _inv.IsBookRead(item);
 			//LogChannel('Inventory_Books', "SetItemDataStub book name "+_inv.GetItemName(item)+" readed "+ bRead );
 			flashObject.SetMemberFlashBool( "isReaded", bRead );
