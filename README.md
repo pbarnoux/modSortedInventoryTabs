@@ -7,18 +7,27 @@ A Witcher 3 mod sorting inventory tabs by usage.
 The vanilla game allows to sort items according to some parameters including
 the type, but the result is not often user friendly.
 
-SIT splits items into categories, and sort categories. Default sort order is:
+SIT splits items into categories, and sort these categories. Default sort order
+is:
 
 - usable tab: steel oil > silver oil > potion > decoction > bomb > other (food)
   > quest item (single use item);
-- quest and book tabs: unread document > already read document > other.
+- quest and book tabs: unread document > already read document > other;
+- ingredient tab: alcohol (consumed by medidation) > alchemy ingredient >
+  common mutagens > monster mutagen > crafting ingredient > other;
+- other tab: currencies > other > junk.
 
-Inside each category, items are sorted according to some simple algorithm:
+By default, inside each category, items are sorted by their localized name in
+natural order (case insensitive). Following categories overrides this behavior:
 
-- usable tab: by quality first (superior > enhanced > normal), in case of tie
-  by the localized name;
-- quest and book tabs: new (starred) items first, in case of tie by the the
-  localized name.
+- all categories in usable tab: by quality first (superior > enhanced >
+  normal), in case of tie by the localized name;
+- all categories in quest and book tabs: new (starred) items first, in case of
+  tie by the the localized name;
+- alcohols consumed by mutagen (alchemy tab): by priority (first displayed will
+  be first consumed);
+- common mutagens (alchemy tab): by quality first (greater > normal > lesser),
+  in case of tie by the localized name.
 
 #Manual installation
 Locate the `game install folder` (for instance `C:\GoG\The Witcher3`) on the
@@ -34,6 +43,9 @@ directory. The game engine will compile scripts when started (one time only).
 
 ### Version 1.10
 
+- [release 1.1.2][1.1.2] sorts the content of all tabs but the weapon tab. When
+  dealing with a merchant, items that can be sold have priority on other items
+  (restores the vanilla game behavior);
 - [release 1.1.1][1.1.1] sorts the content of the usable, quest and book tabs.
 
 ###Version 1.08.4
@@ -60,6 +72,7 @@ scripts. Calling these features will always bypass this mod.
 
 Refer to the documentation on the [Nexus site][nexus].
 
+[1.1.2]: https://github.com/pbarnoux/modSortedInventoryTabs/releases/tag/1.1.2
 [1.1.1]: https://github.com/pbarnoux/modSortedInventoryTabs/releases/tag/1.1.1
 [1.0.1]: https://github.com/pbarnoux/modSortedInventoryTabs/releases/tag/1.0.1
 [nexus]: http://www.nexusmods.com/witcher3/mods/770/?
