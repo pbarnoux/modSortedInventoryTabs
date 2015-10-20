@@ -204,18 +204,6 @@ class CR4InventoryMenu extends CR4MenuBase
 		_tooltipDataProvider = new W3TooltipComponent in this;
 		_tooltipDataProvider.initialize(_inv, m_flashValueStorage);
 		
-		// ++ modSortedInventoryTabs ++
-		if( _shopNpc )
-		{
-			_sitListener = new SitShopListener in this;
-		}
-		else
-		{
-			_sitListener = new SitListener in this;
-		}
-		_sitListener.Initialize();
-		// -- modSortedInventoryTabs --
-
 		theGame.GetGuiManager().SetBackgroundTexture( LoadResource( "inventory_background" ) );
 		
 		
@@ -288,6 +276,19 @@ class CR4InventoryMenu extends CR4MenuBase
 			_defaultInventoryState = IMS_Player;
 		}
 		
+		// ++ modSortedInventoryTabs ++
+		if( _shopInv )
+		{
+			_sitListener = new SitShopListener in this;
+			_sitListener.Initialize( _playerInv, _shopInv );
+		}
+		else
+		{
+			_sitListener = new SitListener in this;
+			_sitListener.Initialize( _playerInv );
+		}
+		// -- modSortedInventoryTabs --
+
 		RestoreSaved();
 		UpdateData();
 		UpdateEncumbranceInfo();
@@ -305,7 +306,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		// ++ modSortedInventoryTabs ++
 		if( _currentState == IMS_Player )
 		{
-			UpdateInventoryFilter( _sitListener.GuessTabIndex( _playerInv,  _sitHasNewQuestItem ) );
+			UpdateInventoryFilter( _sitListener.GuessTabIndex( _sitHasNewQuestItem ) );
 		}
 		// -- modSortedInventoryTabs --
 	}

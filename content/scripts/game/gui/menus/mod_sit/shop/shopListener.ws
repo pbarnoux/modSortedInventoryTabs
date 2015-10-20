@@ -5,16 +5,19 @@ Notified when some methods are triggered in base scripts.
 class SitShopListener extends SitListener
 {
 	private var _delegate: SitSorter;
+	private var _shopInv : W3GuiShopInventoryComponent;
 
-	public function Initialize(): void
+	public function Initialize( playerInv: W3GuiPlayerInventoryComponent, optional shopInv: W3GuiShopInventoryComponent ): void
 	{
+		super.Initialize( playerInv, shopInv );
+		_shopInv = shopInv;
 		LogChannel( 'MOD_SIT', "SitShopListener initialized" );
 	}
 
 	/*
 	Entry point called from OnConfigUI in inventoryMenu.ws
 	*/
-	public function GuessTabIndex( playerInv: W3GuiPlayerInventoryComponent, hasNewQuestItem: bool ): int
+	public function GuessTabIndex( optional hasNewQuestItem: bool ): int
 	{
 		return IFT_Weapons;
 	}
