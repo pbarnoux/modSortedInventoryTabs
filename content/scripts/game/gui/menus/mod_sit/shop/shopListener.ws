@@ -19,6 +19,37 @@ class SitShopListener extends SitListener
 	*/
 	public function GuessTabIndex( optional hasNewQuestItem: bool ): int
 	{
+		var shop: CInventoryComponent;
+
+		// Guess the kind of shop (from the most likely to the less likely)
+		shop = _shopInv.GetInventoryComponent();
+
+		if( shop.HasTag( 'type_blacksmith' ) || shop.HasTag( 'type_armorer' ) )
+		{
+			return IFT_Weapons;
+		}
+
+		if( shop.HasTag( 'type_herbalist' ) || shop.HasTag( 'type_alchemist' ) )
+		{
+			return IFT_Ingredients;
+		}
+
+		if( shop.HasTag( 'type_inn' ) )
+		{
+			return IFT_AlchemyItems;
+		}
+
+		if( shop.HasTag( 'type_general' ) )
+		{
+			return IFT_Default;
+		}
+
+		if( shop.HasTag( 'type_book' ) )
+		{
+			return IFT_Books;
+		}
+
+		// Should I forgot a type of shop, make sure to fallback on default tab: weapon one
 		return IFT_Weapons;
 	}
 

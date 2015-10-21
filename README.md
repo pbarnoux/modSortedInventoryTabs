@@ -4,11 +4,24 @@ A Witcher 3 mod sorting inventory tabs by usage.
 
 ##Default tab selection
 
+###When opening the menu
+
 When opening the player inventory, the default tab is either the quest or the
 usable tab instead of being always the weapon tab (vanilla).
 
 Having at least one new (starred) unread document will prompt the quest tab
 when opening the inventory. Otherwise, the inventory opens on the usable tab.
+
+###When dealing with a merchant
+
+Depending on the kind of merchant you deal, the inventory prompts the tab
+containing items that are likely to be of some interest for the NPC:
+
+- herbalist and alchemist: alchemy ingredient tab;
+- innkeep: usable tab (food);
+- bookseller: book tab;
+- general: other tab (junk items);
+- armorer, blacksmith and other unlisted kinds: weapon tab.
 
 ##Sorting items inside inventory tabs
 

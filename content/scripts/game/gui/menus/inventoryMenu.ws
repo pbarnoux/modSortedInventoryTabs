@@ -304,7 +304,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		SetInitialTabNewFlags();
 
 		// ++ modSortedInventoryTabs ++
-		if( _currentState == IMS_Player )
+		if( _currentState == IMS_Player || _currentState == IMS_Shop )
 		{
 			UpdateInventoryFilter( _sitListener.GuessTabIndex( _sitHasNewQuestItem ) );
 		}
