@@ -3,12 +3,13 @@ Base logic of the sorting mechanism. Specific features are found in methods over
 */
 abstract class SitSorter
 {
-	protected var _categories: array < array < SitSortable > >;
-	protected var _delegate  : SitSorter;
+	protected var _categories    : array < array < SitSortable > >;
+	protected var _reserved_slots: array < int >;
+	protected var _free_slot     : int; default _free_slot = 0;
 
 	public function Initialize( optional delegate: SitSorter ): void
 	{
-		_delegate = delegate;
+		// Nothing to do at this level
 	}
 
 	/*
@@ -26,25 +27,10 @@ abstract class SitSorter
 		for( index = 0; index < length; index += 1 )
 		{
 			element = sortables[ index ];
-			categoryIndex = GetCategoryIndex( element );
-
-			if( categoryIndex >= 0)
-			{
-				AddToCategory( categoryIndex, element );
-			}
-			else
-			{
-				categoryIndex = _delegate.GetCategoryIndex( element );
-				_delegate.AddToCategory( categoryIndex, element );
-			}
+			AddToCategory( element );
 		}
 		entriesArray.ClearElements();
 		FlattenCategories( entriesArray );
-
-		if( _delegate )
-		{
-			_delegate.FlattenCategories( entriesArray );
-		}
 		length = entriesArray.GetLength();
 		LogChannel( 'MOD_SIT', "SitSorter.Sort sorted " + length + " elements" );
 	}
@@ -78,11 +64,12 @@ abstract class SitSorter
 	/*
 	Inserts the element inside a category at the best position according to item status.
 	*/
-	private function AddToCategory( categoryIndex: int, element: SitSortable ): void
+	protected function AddToCategory( element: SitSortable ): void
 	{
-		var length, index: int;
+		var length, index, categoryIndex: int;
 
-		LogChannel( 'MOD_SIT', "SitSorter.AddToCategory " + categoryIndex + ", " + element.ToString() );
+		//LogChannel( 'MOD_SIT', "SitSorter.AddToCategory " + categoryIndex + ", " + element.ToString() );
+		categoryIndex = GetCategoryIndex( element );
 		length = _categories[ categoryIndex ].Size();
 
 		for( index = 0; index < length; index += 1 )
@@ -99,7 +86,7 @@ abstract class SitSorter
 	/*
 	Flattens the two-dimensional array of items into a single dimension array of items.
 	*/
-	private function FlattenCategories( out entriesArray: CScriptedFlashArray ): void
+	protected function FlattenCategories( out entriesArray: CScriptedFlashArray ): void
 	{
 		var length, index: int;
 
@@ -118,8 +105,9 @@ abstract class SitSorter
 	*/
 	private function AppendTo( out entriesArray: CScriptedFlashArray, categoryIndex: int ): void
 	{
-		var length, index, offset: int;
-		var element: CScriptedFlashObject;
+		var length, index, offset, position: int;
+		var flashObj: CScriptedFlashObject;
+		var element : SitSortable;
 
 		length = _categories[ categoryIndex ].Size();
 		offset = entriesArray.GetLength();
@@ -127,9 +115,19 @@ abstract class SitSorter
 
 		for( index = 0; index < length; index += 1 )
 		{
-			element = _categories[ categoryIndex ][ index ].GetFlashObject();
-			element.SetMemberFlashInt( "gridPosition", index + offset );
-			entriesArray.PushBackFlashObject( element );
+			element = _categories[ categoryIndex ][ index ];
+			flashObj = element.GetFlashObject();
+			position = PlaceAt( element, offset, index );
+			flashObj.SetMemberFlashInt( "gridPosition", position );
+			entriesArray.PushBackFlashObject( flashObj );
 		}
+	}
+
+	/*
+	Computes the new position of an item on the grid.
+	*/
+	protected function PlaceAt( element: SitSortable, offset: int, index: int): int
+	{
+		return offset + index;
 	}
 }

@@ -203,15 +203,19 @@ abstract class W3GuiBaseInventoryComponent
 		}
 	}
 
-	protected function CreateSortableForFlashObject( item: SItemUniqueId, flashObject: CScriptedFlashObject ): SitSortable
+	function CreateSortableForFlashObject( item: SItemUniqueId, flashObject: CScriptedFlashObject ): SitSortable
 	{
 		var sortable: SitSortable;
+		var uiData : SInventoryItemUIData;
+
+		uiData = _inv.GetInventoryItemUIData( item );
 		sortable = new SitSortable in this;
 		sortable.Initialize (
 			flashObject,
 			_inv.GetItemName( item ),
 			GetLocStringByKeyExt( _inv.GetItemLocalizedNameByUniqueID( item ) ),
-			_inv.GetItemPrice( item )
+			_inv.GetItemPrice( item ),
+			uiData.gridSize
 		);
 		sortable.SetReadable( IsReadable( item ) );
 		sortable.SetConsumable( _inv.ItemHasTag( item, theGame.params.TAG_ALCHEMY_REFILL_ALCO ) );

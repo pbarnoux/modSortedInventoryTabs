@@ -11,9 +11,9 @@ enum SitBookCategory
 }
 
 /*
-Sort logic adapted to the 'quest tab' of the inventory.
+Sort logic adapted to the 'quest tab' or 'book tab' of the inventory.
 */
-class SitBookSorter extends SitSorter
+class SitBookSorter extends SitDualCellsContainerSorter
 {
 	protected var _unread: array < SitSortable >;
 	protected var _read  : array < SitSortable >;

@@ -9,6 +9,7 @@ class SitSortable
 	private var _name         : string;
 	private var _localizedName: string;
 	private var _unitPrice    : int;
+	private var _gridSize     : int;
 	private var _readable     : bool; default _readable   = false;
 	private var _sellable     : bool; default _sellable   = false;
 	private var _consumable   : bool; default _consumable = false;
@@ -17,12 +18,14 @@ class SitSortable
 	public function Initialize( flashObject: CScriptedFlashObject,
 		baseName: string,
 		localizedName: string,
-		unitPrice: int ): void
+		unitPrice: int,
+		gridSize: int ): void
 	{
 		_flashObject = flashObject;
 		_name = baseName;
 		_localizedName = localizedName;
 		_unitPrice = unitPrice;
+		_gridSize = gridSize;
 	}
 
 	/*
@@ -81,6 +84,13 @@ class SitSortable
 		return _unitPrice;
 	}
 
+	/*
+	Returns the wrapped grid size
+	*/
+	public function GetGridSize(): int
+	{
+		return _gridSize;
+	}
 	/*
 	Returns true if this item is readable
 	*/

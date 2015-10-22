@@ -3,9 +3,10 @@ Sort logic adapted when dealing with a merchant.
 Inherits some behavior from the default SitSorter class.
 Delegates sorting of non-sellable items to a wrapped SitSorter instance.
 */
-class SitShopSorter extends SitSorter
+class SitShopSorter extends SitDualCellsContainerSorter
 {
 	protected var _sellables: array < SitSortable >;
+	protected var _delegate : SitSorter;
 
 	/*
 	Overrides Initialize from potionSorter.ws
@@ -25,11 +26,31 @@ class SitShopSorter extends SitSorter
 	*/
 	protected function GetCategoryIndex( element: SitSortable ): int
 	{
-		if ( element.IsSellable() )
+		return 0;
+	}
+
+	/*
+	*/
+	protected function AddToCategory( element: SitSortable ): void
+	{
+		if( element.IsSellable() )
 		{
-			return 0;
+			super.AddToCategory( element );
 		}
-		// Not in this sorter league
-		return -1;
+		else
+		{
+			_delegate.AddToCategory( element );
+		}
+	}
+
+	/*
+	Flattens the two-dimensional array of items into a single dimension array of items.
+	*/
+	protected function FlattenCategories( out entriesArray: CScriptedFlashArray ): void
+	{
+		super.FlattenCategories( entriesArray );
+		_delegate._free_slot = _free_slot;
+		_delegate._reserved_slots = _reserved_slots;
+		_delegate.FlattenCategories( entriesArray );
 	}
 }
