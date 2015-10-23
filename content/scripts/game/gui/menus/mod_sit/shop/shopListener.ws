@@ -63,6 +63,11 @@ class SitShopListener extends SitListener
 		if( _delegate )
 		{
 			_delegate.Initialize();
+
+			if( tabIndex == InventoryMenuTab_Weapons )
+			{
+				return new SitShopWeaponSorter in this;
+			}
 			return new SitShopSorter in this;
 		}
 		return NULL;

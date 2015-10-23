@@ -131,7 +131,7 @@ class SitPotionSorter extends SitSorter
 		l_quality = left.GetFlashObject().GetMemberFlashInt( "quality" );
 		r_quality = right.GetFlashObject().GetMemberFlashInt( "quality" );
 
-		if ( l_quality == r_quality )
+		if( l_quality == r_quality )
 		{
 			return super.Compare( left, right );
 		}

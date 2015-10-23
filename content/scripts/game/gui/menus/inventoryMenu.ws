@@ -501,7 +501,9 @@ class CR4InventoryMenu extends CR4MenuBase
 			{
 			case InventoryMenuTab_Weapons:
 				_playerInv.SetFilterType( IFT_Weapons );
-				_playerInv.GetInventoryFlashArray(l_flashArray, l_flashObject);
+				// ++ modSortedInventoryTabs ++
+				_playerInv.GetSortableAndFlashArray(sortables, l_flashArray, l_flashObject);
+				// -- modSortedInventoryTabs --
 				break;
 			case InventoryMenuTab_Potions:
 				_playerInv.SetFilterType( IFT_AlchemyItems );

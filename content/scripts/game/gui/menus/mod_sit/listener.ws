@@ -105,6 +105,8 @@ class SitListener
 				return new SitAlchemySorter in this;
 			case InventoryMenuTab_Default:
 				return new SitOtherSorter in this;
+			case InventoryMenuTab_Weapons:
+				return new SitWeaponSorter in this;
 			default:
 				return NULL;
 		}
