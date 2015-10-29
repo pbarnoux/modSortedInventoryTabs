@@ -11,11 +11,24 @@ master.
 
 ##Default tab selection
 
+###When opening the menu
+
 When opening the player inventory, the default tab is either the quest or the
 usable tab instead of being always the weapon tab (vanilla).
 
 Having at least one new (starred) unread document will prompt the quest tab
 when opening the inventory. Otherwise, the inventory opens on the usable tab.
+
+###When dealing with a merchant
+
+Depending on the kind of merchant you deal, the inventory prompts the tab
+containing items that are likely to be of some interest for the NPC:
+
+- herbalist and alchemist: alchemy ingredient tab;
+- innkeep: usable tab (food);
+- bookseller: book tab;
+- general: other tab (junk items);
+- armorer, blacksmith and other unlisted kinds: weapon tab.
 
 ##Sorting items inside inventory tabs
 
@@ -30,7 +43,10 @@ is:
 - quest and book tabs: unread document > already read document > other;
 - ingredient tab: alcohol (consumed by medidation) > alchemy ingredient >
   common mutagens > monster mutagen > crafting ingredient > other;
-- other tab: currencies > other > junk.
+- other tab: currencies > other > junk;
+- weapon tab: runes > glyphs > weapon tools > armor tools > steel swords >
+  silver swords > crossbows > bolts for crossbows > armors (body part) > gloves
+  > pants > boots > trophies > horse stuff > other items.
 
 By default, inside each category, items are sorted by their localized name in
 natural order (case insensitive). Following categories overrides this behavior:
@@ -42,7 +58,17 @@ natural order (case insensitive). Following categories overrides this behavior:
 - alcohols consumed by mutagen (alchemy tab): by priority (first displayed will
   be first consumed);
 - common mutagens (alchemy tab): by quality first (greater > normal > lesser),
-  in case of tie by the localized name.
+  in case of tie by the localized name;
+- upgrades (runes and glyphs of the weapon tab): by quality first (greater >
+  normal > lesser), in case of tie by the localized name;
+- tools (weapons and armors repair kits of the weapon tab): by quality (master
+  > journeyman > amateur);
+- items spanning on 2 cells (weapon tab): by quality first (witcher > relic >
+  magic > masteritem > normal), in case of tie by localized name.
+
+When dealing with a merchant, items that can be sold are offered first sorted
+by their localized name. On the weapon tabs, items spanning on two cells of low
+quality and low price are offered first to enable to quickly unclutter the tab.
 
 #Manual installation
 Locate the `game install folder` (for instance `C:\GoG\The Witcher3`) on the

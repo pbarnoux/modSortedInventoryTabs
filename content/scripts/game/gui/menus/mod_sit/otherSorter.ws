@@ -5,13 +5,13 @@ Categories are sorted by these index (first, items of the category 0, then items
 */
 enum SitOtherCategory
 {
-	SITOC_currencies = 0,
-	SITOC_others     = 1,
-	SITOC_junks      = 2,
+	SITOC_currency = 0,
+	SITOC_other    = 1,
+	SITOC_junk     = 2,
 }
 
 /*
-Sort logic adapted to the 'usable tab' of the inventory.
+Sort logic adapted to the 'other tab' of the inventory.
 */
 class SitOtherSorter extends SitSorter
 {
@@ -23,55 +23,52 @@ class SitOtherSorter extends SitSorter
 	Create containers for each category.
 	Containers are sorted accorded to the SitOtherCategory enumeration.
 	*/
-	public function Initialize( optional delegate: SitSorter ): void
+	public /*override*/ function Initialize( optional delegate: SitSorter ): void
 	{
-		var index: int;
-		super.Initialize( delegate );
+		var index, max: int;
 
-		/*
-		Currently still looking for a way to obtain the number of elements of an enum.
-		Till then, the loop max index must be updated when literal is added/removed to SitOtherCategory.
-		*/
-		for( index = 0; index < 3; index += 1 )
+		super.Initialize( delegate );
+		max = EnumGetMax( 'SitOtherCategory' );
+
+		for( index = 0; index <= max; index += 1 )
 		{
 			switch( index )
 			{
-				case SITOC_currencies:
+				case SITOC_currency:
 					_categories.PushBack( _currencies );
 					break;
-				case SITOC_junks:
+				case SITOC_junk:
 					_categories.PushBack( _junks );
 					break;
 				default:
 					_categories.PushBack( _others );
 			}
 		}
-		LogChannel( 'MOD_SIT', "SitOtherSorter initialized ; number of categories : " + _categories.Size() );
 	}
 
 	/*
-	Overrides GetCategoryIndex from sorter.ws
 	Returns the index of the category assigned to the given element.
 	*/
-	protected function GetCategoryIndex( element: SitSortable ): int
+	protected /*override*/ function GetCategoryIndex( element: SitSortable ): int
 	{
 		var categoryName: string;
 		var elementName : string;
 		var flashObject : CScriptedFlashObject;
+		var result      : int;
 
+		result = SITOC_other;
 		flashObject = element.GetFlashObject();
 		categoryName = flashObject.GetMemberFlashString( "category" );
 		elementName = element.GetName();
 
 		if( elementName == "Orens" || elementName == "Florens" )
 		{
-			return SITOC_currencies;
+			result = SITOC_currency;
 		}
-
-		if( categoryName == "junk" )
+		else if( categoryName == "junk" )
 		{
-			return SITOC_junks;
+			result = SITOC_junk;
 		}
-		return SITOC_others;
+		return result;
 	}
 }

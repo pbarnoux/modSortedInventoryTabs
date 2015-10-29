@@ -14,7 +14,7 @@ enum SitAlchemyCategory
 }
 
 /*
-Sort logic adapted to the 'usable tab' of the inventory.
+Sort logic adapted to the 'ingredients tab' of the inventory.
 */
 class SitAlchemySorter extends SitSorter
 {
@@ -29,16 +29,14 @@ class SitAlchemySorter extends SitSorter
 	Create containers for each category.
 	Containers are sorted accorded to the SitAlchemyCategory enumeration.
 	*/
-	public function Initialize( optional delegate: SitSorter ): void
+	public /*override*/ function Initialize( optional delegate: SitSorter ): void
 	{
-		var index: int;
-		super.Initialize( delegate );
+		var index, max: int;
 
-		/*
-		Currently still looking for a way to obtain the number of elements of an enum.
-		Till then, the loop max index must be updated when literal is added/removed to SitAlchemyCategory.
-		*/
-		for( index = 0; index < 6; index += 1 )
+		super.Initialize( delegate );
+		max = EnumGetMax( 'SitAlchemyCategory' );
+
+		for( index = 0; index <= max; index += 1 )
 		{
 			switch( index )
 			{
@@ -61,106 +59,107 @@ class SitAlchemySorter extends SitSorter
 					_categories.PushBack( _others );
 			}
 		}
-		LogChannel( 'MOD_SIT', "SitAlchemySorter initialized ; number of categories : " + _categories.Size() );
 	}
 
 	/*
-	Overrides GetCategoryIndex from sorter.ws
 	Returns the index of the category assigned to the given element.
 	*/
-	protected function GetCategoryIndex( element: SitSortable ): int
+	protected /*override*/ function GetCategoryIndex( element: SitSortable ): int
 	{
 		var categoryName: string;
 		var elementName : string;
 		var flashObject : CScriptedFlashObject;
-
-		flashObject = element.GetFlashObject();
-		categoryName = flashObject.GetMemberFlashString( "category" );
+		var result      : int;
 
 		if( element.IsConsumable() )
 		{
-			return SITAC_alcohol;
+			result = SITAC_alcohol;
 		}
-
-		if( categoryName == "alchemy_ingredient" )
+		else
 		{
-			if( StrContains( element.GetName(), "utagen " ) )
-			{
-				return SITAC_common_mutagen;
-			}
-			if( StrContains( element.GetName(), " mutagen" ) )
-			{
-				return SITAC_monster_mutagen;
-			}
-			return SITAC_alchemy_ingredient;
-		}
+			result = SITAC_other;
+			flashObject = element.GetFlashObject();
+			categoryName = flashObject.GetMemberFlashString( "category" );
 
-		if( categoryName == "crafting_ingredient" )
-		{
-			return SITAC_crafting_ingredient;
+			if( categoryName == "alchemy_ingredient" )
+			{
+				result = SITAC_alchemy_ingredient;
+				elementName = element.GetName();
+
+				if( StrContains( elementName, "utagen " ) )
+				{
+					result = SITAC_common_mutagen;
+				}
+				else if( StrContains( elementName, " mutagen" ) )
+				{
+					result = SITAC_monster_mutagen;
+				}
+			}
+			else if( categoryName == "crafting_ingredient" )
+			{
+				result = SITAC_crafting_ingredient;
+			}
 		}
-		return SITAC_other;
+		return result;
 	}
 
 	/*
-	Compares two sortable elements between them
-	Returns a negative integer if the left element should be sorted before the right one,
-	0 if both elements cannot be distinguished, a positive integer otherwise.
+	Compares two items from the ingredient tab.
 	Use specific comparison algirithms for some categories. Other stuff is sorted by localized name.
 	*/
-	protected function Compare( left: SitSortable, right: SitSortable, optional categoryIndex: int ): int
+	protected /*override*/ function Compare( left: SitSortable,
+		right: SitSortable,
+		optional categoryIndex: int ): int
 	{
-		if( categoryIndex == SITAC_alcohol )
-		{
-			return CompareAlcohols( left, right );
-		}
+		var result: int;
 
-		if( categoryIndex == SITAC_common_mutagen )
+		switch( categoryIndex )
 		{
-			return CompareMutagens( left, right );
+			case SITAC_alcohol:
+				result = CompareAlcohols( left, right );
+				break;
+			case SITAC_common_mutagen:
+				result = CompareMutagens( left, right );
+				break;
+			default:
+				result = super.Compare( left, right );
 		}
-		return super.Compare( left, right );
+		return result;
 	}
 
 	/*
-	Compares two alcohols
-	Returns a negative integer if the left element should be sorted before the right one,
-	0 if both elements cannot be distinguished, a positive integer otherwise.
+	Compares two alcohols.
 	Alcohols are sorted by priority: the firt one in the list is the next one consumed when entering meditation.
 	*/
 	protected function CompareAlcohols( left: SitSortable, right: SitSortable ): int
 	{
 		var l_free, r_free: bool;
-		var l_price, r_price: int;
-
-		l_free = left.IsFreeForUse();
-		r_free = right.IsFreeForUse();
+		var result        : int;
 
 		if( l_free )
 		{
-			return -1;
+			result = -1;
 		}
-
-		if( r_free )
+		else if( r_free )
 		{
-			return 1;
+			result = 1;
 		}
-		// Game will consume cheapest alcohol first
-		l_price = left.GetUnitPrice();
-		r_price = right.GetUnitPrice();
-		return l_price - r_price;
+		else
+		{
+			// Game will consume cheapest alcohol first
+			result = left.GetUnitPrice() - right.GetUnitPrice();
+		}
+		return result;
 	}
 
 	/*
-	Compares two mutagens
-	Returns a negative integer if the left element should be sorted before the right one,
-	0 if both elements cannot be distinguished, a positive integer otherwise.
+	Compares two mutagens.
 	Mutagens are sorted by quality (greater > normal > lesser) and localized name in case they tie.
 	*/
 	protected function CompareMutagens( left: SitSortable, right: SitSortable ): int
 	{
-		var l_quality, r_quality: int;
-		var l_name, r_name: string;
+		var l_quality, r_quality, result: int;
+		var l_name, r_name              : string;
 
 		l_name = left.GetName();
 		r_name = right.GetName();
@@ -185,11 +184,12 @@ class SitAlchemySorter extends SitSorter
 		{
 			r_quality = 1;
 		}
+		result = r_quality - l_quality;
 
-		if( l_quality == r_quality )
+		if( result == 0 )
 		{
-			return super.Compare( left, right );
+			result = super.Compare( left, right );
 		}
-		return r_quality - l_quality;
+		return result;
 	}
 }
