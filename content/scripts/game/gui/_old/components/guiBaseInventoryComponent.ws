@@ -176,7 +176,14 @@ abstract class W3GuiBaseInventoryComponent
 	}
 	
 	// ++ modSortedInventoryTabs ++
-	public function GetSortableAndFlashArray( out sortables: array < SitSortable >, out flashArray : CScriptedFlashArray, flashObject : CScriptedFlashObject ) : void
+	/*
+	Populates two arrays containing items that should be displayed.
+	The flashArray is the legacy game structure containing flash objects (HUD information).
+	The other array contains wrappers around these flash objects and additional properties used to sort them.
+	*/
+	public function GetSortableAndFlashArray( out sortables: array < SitSortable >,
+		out flashArray : CScriptedFlashArray,
+		flashObject : CScriptedFlashObject ) : void
 	{
 		var i             : int;
 		var item          : SItemUniqueId;
@@ -203,6 +210,9 @@ abstract class W3GuiBaseInventoryComponent
 		}
 	}
 
+	/*
+	Extracts inventory related information into the SitSortable wrapping this flash object.
+	*/
 	function CreateSortableForFlashObject( item: SItemUniqueId, flashObject: CScriptedFlashObject ): SitSortable
 	{
 		var sortable: SitSortable;
@@ -224,8 +234,8 @@ abstract class W3GuiBaseInventoryComponent
 	}
 
 	/*
-	By inserting this function in the legacy code and the mod, any change in legacy logic will create a conflict
-	Quickly asserts whether the mod stays compliant with new game version or not
+	Quickly asserts whether the mod stays compliant with new game version or not.
+	This method is also called from legacy code, if it changes, it will raise a conflict when cherry-picking diffs.
 	*/
 	protected function IsReadable( item: SItemUniqueId ): bool
 	{

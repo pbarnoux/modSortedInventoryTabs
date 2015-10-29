@@ -31,16 +31,14 @@ class SitPotionSorter extends SitSorter
 	Create containers for each category.
 	Containers are sorted accorded to the SitPotionCategory enumeration.
 	*/
-	public function Initialize( optional delegate: SitSorter ): void
+	public /*override*/ function Initialize( optional delegate: SitSorter ): void
 	{
-		var index: int;
-		super.Initialize( delegate );
+		var index, max: int;
 
-		/*
-		Currently still looking for a way to obtain the number of elements of an enum.
-		Till then, the loop max index must be updated when literal is added/removed to SitPotionCategory.
-		*/
-		for( index = 0; index < 7; index += 1 )
+		super.Initialize( delegate );
+		max = EnumGetMax( 'SitPotionCategory' );
+
+		for( index = 0; index <= max; index += 1 )
 		{
 			switch( index )
 			{
@@ -66,75 +64,72 @@ class SitPotionSorter extends SitSorter
 					_categories.PushBack( _quests );
 			}
 		}
-		LogChannel( 'MOD_SIT', "SitPotionSorter initialized ; number of categories : " + _categories.Size() );
 	}
 
 	/*
-	Overrides GetCategoryIndex from sorter.ws
 	Returns the index of the category assigned to the given element.
 	*/
-	protected function GetCategoryIndex( element: SitSortable ): int
+	protected /*override*/ function GetCategoryIndex( element: SitSortable ): int
 	{
 		var categoryName: string;
 		var elementName : string;
 		var flashObject : CScriptedFlashObject;
+		var result      : int;
 
 		flashObject = element.GetFlashObject();
 		categoryName = flashObject.GetMemberFlashString( "category" );
+		result = SITPC_other;
 
 		if( categoryName == "oil" )
 		{
+			result = SITPC_silver_oil;
+
 			if( flashObject.GetMemberFlashBool( "isSteelOil" ) )
 			{
-				return SITPC_steel_oil;
+				result = SITPC_steel_oil;
 			}
-			return SITPC_silver_oil;
 		}
-
-		if( categoryName == "potion" )
+		else if( categoryName == "potion" )
 		{
+			result = SITPC_potion;
 			elementName = element.GetName();
 
 			if( StrBeginsWith( elementName, "Mutagen" ) )
 			{
-				return SITPC_mutagen;
+				result = SITPC_mutagen;
 			}
-
-			if ( StringToInt( StrRight ( elementName, 1 ), -1 ) < 0 )
+			else if ( StringToInt( StrRight ( elementName, 1 ), -1 ) < 0 )
 			{
 				// Puts the potion never used saved but for a given quest in a separate category
 				// Anything that is not upgradable or not given a base rank
 				// Pop mold ...
-				return SITPC_quest;
+				result = SITPC_quest;
 			}
-			return SITPC_potion;
 		}
-
-		if( categoryName == "petard" )
+		else if( categoryName == "petard" )
 		{
-			return SITPC_bomb;
+			result = SITPC_bomb;
 		}
-		return SITPC_other;
+		return result;
 	}
 
 	/*
-	Overrides Compare from sorter.ws
-	Compares two sortable elements between them
-	Returns a negative integer if the left element should be sorted before the right one,
-	0 if both elements cannot be distinguished, a positive integer otherwise.
 	Compare by quality first, then by localized name.
 	*/
-	protected function Compare( left: SitSortable, right: SitSortable, optional categoryIndex: int ): int
+	protected /*override*/ function Compare( left: SitSortable,
+		right: SitSortable,
+		optional categoryIndex: int ): int
 	{
-		var l_quality, r_quality: int;
+		var l_quality, r_quality, result: int;
 
 		l_quality = left.GetFlashObject().GetMemberFlashInt( "quality" );
 		r_quality = right.GetFlashObject().GetMemberFlashInt( "quality" );
+		result = r_quality - l_quality;
 
-		if( l_quality == r_quality )
+		if( result == 0 )
 		{
-			return super.Compare( left, right );
+			result = super.Compare( left, right );
 		}
-		return r_quality - l_quality;
+		return result;
 	}
 }

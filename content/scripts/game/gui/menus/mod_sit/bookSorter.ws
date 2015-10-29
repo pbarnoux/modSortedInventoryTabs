@@ -23,16 +23,14 @@ class SitBookSorter extends SitDualCellsContainerSorter
 	Create containers for each category.
 	Containers are sorted accorded to the SitBookCategory enumeration.
 	*/
-	public function Initialize( optional delegate: SitSorter ): void
+	public /*override*/ function Initialize( optional delegate: SitSorter ): void
 	{
-		var index: int;
-		super.Initialize( delegate );
+		var index, max: int;
 
-		/*
-		Currently still looking for a way to obtain the number of elements of an enum.
-		Till then, the loop max index must be updated when literal is added/removed to SitBookCategory.
-		*/
-		for( index = 0; index < 3; index += 1 )
+		super.Initialize( delegate );
+		max = EnumGetMax( 'SitBookCategory' );
+
+		for( index = 0; index <= max; index += 1 )
 		{
 			switch( index )
 			{
@@ -46,36 +44,41 @@ class SitBookSorter extends SitDualCellsContainerSorter
 					_categories.PushBack( _others );
 			}
 		}
-		LogChannel( 'MOD_SIT', "SitBookSorter initialized ; number of categories : " + _categories.Size() );
 	}
 
 	/*
-	Overrides GetCategoryIndex from sorter.ws
 	Returns the index of the category assigned to the given element.
 	*/
-	protected function GetCategoryIndex( element: SitSortable ): int
+	protected /*override*/ function GetCategoryIndex( element: SitSortable ): int
 	{
+		var result : int;
+
+		result = SITQC_other;
+
 		if( element.IsReadable() )
 		{
 			if( element.GetFlashObject().GetMemberFlashBool( "isReaded" ) )
 			{
-				return SITQC_already_read;
+				result = SITQC_already_read;
 			}
-			return SITQC_not_read_yet;
+			else
+			{
+				result = SITQC_not_read_yet;
+			}
 		}
-		return SITQC_other;
+		return result;
 	}
 
 	/*
-	Overrides Compare from sorter.ws
-	Compares two sortable elements between them
-	Returns a negative integer if the left element should be sorted before the right one,
-	0 if both elements cannot be distinguished, a positive integer otherwise.
-	Newest items first, then sort by name.
+	Compares two quest or book items.
+	Newest item first, then in case of tie, sort by name.
 	*/
-	protected function Compare( left: SitSortable, right: SitSortable, optional categoryIndex: int ): int
+	protected /*override*/ function Compare( left: SitSortable,
+		right: SitSortable,
+		optional categoryIndex: int ): int
 	{
 		var l_new, r_new: bool;
+		var result      : int;
 
 		l_new = left.GetFlashObject().GetMemberFlashBool( "isNew" );
 		r_new = right.GetFlashObject().GetMemberFlashBool( "isNew" );
@@ -83,16 +86,16 @@ class SitBookSorter extends SitDualCellsContainerSorter
 		if ( l_new == r_new )
 		{
 			// Same state, name wins
-			return super.Compare( left, right );
+			result = super.Compare( left, right );
 		}
-
-		if ( l_new )
+		else if ( l_new )
 		{
-			return -1;
+			result = -1;
 		}
 		else
 		{
-			return 1;
+			result = 1;
 		}
+		return result;
 	}
 }

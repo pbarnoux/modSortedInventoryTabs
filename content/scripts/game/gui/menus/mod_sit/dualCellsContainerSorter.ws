@@ -1,13 +1,12 @@
 /*
-Provides methods to handles tabs containing items spanning on two cells.
+Specialize SitSorter to handle tabs containing items spanning on two cells (axes, swords ...)
 */
 abstract class SitDualCellsContainerSorter extends SitSorter
 {
 	/*
-	Overrides PlaceAt in sorter.ws
-	Computes the new position of an item on the grid taking care of size of items.
+	Computes the gridPposition of an item on the grid taking care of size of items.
 	*/
-	protected function PlaceAt( element: SitSortable, offset: int, index: int): int
+	protected /*override*/ function PlaceAt( element: SitSortable, offset: int, index: int): int
 	{
 		var gridSize, position: int;
 
@@ -32,11 +31,9 @@ abstract class SitDualCellsContainerSorter extends SitSorter
 		{
 			// Mark the bottom cell (+8 == next row, same column) as used
 			_reserved_slots.PushBack( position + 8 );
-			LogChannel( 'MOD_SIT', "SLOT Save { " + position + ", " + (position + 8) + " } for " + element.ToString() );
 		}
 		// Since the cursor might have shifted, mark the next available slot as the next one
 		_free_slot = position + 1;
-		LogChannel( 'MOD_SIT', "SLOT Assign " + position + " for " + element.ToString() );
 		return position;
 	}
 }

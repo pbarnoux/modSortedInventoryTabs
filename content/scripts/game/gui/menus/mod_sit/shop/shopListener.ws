@@ -1,5 +1,5 @@
 /*
-Mod entry point.
+Mod entry point when dealing with a NPC.
 Notified when some methods are triggered in base scripts.
 */
 class SitShopListener extends SitListener
@@ -7,56 +7,54 @@ class SitShopListener extends SitListener
 	private var _delegate: SitSorter;
 	private var _shopInv : W3GuiShopInventoryComponent;
 
-	public function Initialize( playerInv: W3GuiPlayerInventoryComponent, optional shopInv: W3GuiShopInventoryComponent ): void
+	public /*override*/ function Initialize( playerInv: W3GuiPlayerInventoryComponent,
+		optional shopInv: W3GuiShopInventoryComponent ): void
 	{
 		super.Initialize( playerInv, shopInv );
 		_shopInv = shopInv;
-		LogChannel( 'MOD_SIT', "SitShopListener initialized" );
 	}
 
 	/*
 	Entry point called from OnConfigUI in inventoryMenu.ws
 	*/
-	public function GuessTabIndex( optional hasNewQuestItem: bool ): int
+	public /*override*/ function GuessTabIndex( optional hasNewQuestItem: bool ): int
 	{
-		var shop: CInventoryComponent;
+		var shop  : CInventoryComponent;
+		var result: int;
 
 		// Guess the kind of shop (from the most likely to the less likely)
 		shop = _shopInv.GetInventoryComponent();
 
+		// Should I forgot a type of shop, make sure to fallback on default tab: weapon one
+		result = IFT_Weapons;
+
 		if( shop.HasTag( 'type_blacksmith' ) || shop.HasTag( 'type_armorer' ) )
 		{
-			return IFT_Weapons;
+			result = IFT_Weapons;
 		}
-
-		if( shop.HasTag( 'type_herbalist' ) || shop.HasTag( 'type_alchemist' ) )
+		else if( shop.HasTag( 'type_herbalist' ) || shop.HasTag( 'type_alchemist' ) )
 		{
-			return IFT_Ingredients;
+			result = IFT_Ingredients;
 		}
-
-		if( shop.HasTag( 'type_inn' ) )
+		else if( shop.HasTag( 'type_inn' ) )
 		{
-			return IFT_AlchemyItems;
+			result = IFT_AlchemyItems;
 		}
-
-		if( shop.HasTag( 'type_general' ) )
+		else if( shop.HasTag( 'type_general' ) )
 		{
-			return IFT_Default;
+			result =  IFT_Default;
 		}
-
-		if( shop.HasTag( 'type_book' ) )
+		else if( shop.HasTag( 'type_book' ) )
 		{
-			return IFT_Books;
+			result = IFT_Books;
 		}
-
-		// Should I forgot a type of shop, make sure to fallback on default tab: weapon one
-		return IFT_Weapons;
+		return result;
 	}
 
 	/*
 	Returns the main sorter instance.
 	*/
-	protected function GetSorter( tabIndex: int ): SitSorter
+	protected /*override*/ function GetSorter( tabIndex: int ): SitSorter
 	{
 		_delegate = super.GetSorter( tabIndex );
 
@@ -77,7 +75,7 @@ class SitShopListener extends SitListener
 	Returns a delegate sorter handling non sellable items.
 	This way, non sellable items should have a consistent order between shop HUD and player HUD menus.
 	*/
-	protected function GetDelegate( tabIndex: int ): SitSorter
+	protected /*override*/ function GetDelegate( tabIndex: int ): SitSorter
 	{
 		return _delegate;
 	}

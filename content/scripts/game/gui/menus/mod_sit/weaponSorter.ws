@@ -50,16 +50,14 @@ class SitWeaponSorter extends SitDualCellsContainerSorter
 	Create containers for each category.
 	Containers are sorted accorded to the SitWeaponCategory enumeration.
 	*/
-	public function Initialize( optional delegate: SitSorter ): void
+	public /*override*/ function Initialize( optional delegate: SitSorter ): void
 	{
-		var index: int;
-		super.Initialize( delegate );
+		var index, max: int;
 
-		/*
-		Currently still looking for a way to obtain the number of elements of an enum.
-		Till then, the loop max index must be updated when literal is added/removed to SitWeaponCategory.
-		*/
-		for( index = 0; index < 15; index += 1 )
+		super.Initialize( delegate );
+		max = EnumGetMax( 'SitWeaponCategory' );
+
+		for( index = 0; index <= max; index += 1 )
 		{
 			switch( index )
 			{
@@ -109,129 +107,113 @@ class SitWeaponSorter extends SitDualCellsContainerSorter
 					_categories.PushBack( _others );
 			}
 		}
-		LogChannel( 'MOD_SIT', "SitWeaponSorter initialized ; number of categories : " + _categories.Size() );
 	}
 
 	/*
-	Overrides GetCategoryIndex from sorter.ws
 	Returns the index of the category assigned to the given element.
 	*/
-	protected function GetCategoryIndex( element: SitSortable ): int
+	protected /*override*/ function GetCategoryIndex( element: SitSortable ): int
 	{
 		var categoryName: string;
 		var elementName : string;
 		var flashObject : CScriptedFlashObject;
+		var result      : int;
 
 		flashObject = element.GetFlashObject();
 		categoryName = flashObject.GetMemberFlashString( "category" );
-		LogChannel( 'MOD_SIT', "AddToCategory " + element.ToString()  + ", cat name: " + categoryName );
+		result = SITWC_other;
 
 		if( categoryName == "upgrade" )
 		{
+			result = SITWC_glyph;
+
 			if( StrBeginsWith( element.GetName(), "Rune " ) )
 			{
-				return SITWC_rune;
+				result = SITWC_rune;
 			}
-			return SITWC_glyph;
 		}
-
-		if( categoryName == "tool" )
+		else if( categoryName == "tool" )
 		{
+			result = SITWC_armor_tool;
+
 			if( StrBeginsWith( element.GetName(), "weapon_" ) )
 			{
-				return SITWC_weapon_tool;
+				result = SITWC_weapon_tool;
 			}
-			return SITWC_armor_tool;
 		}
-
-		if( categoryName == "steelsword" )
+		else if( categoryName == "steelsword" )
 		{
-			return SITWC_steel_sword;
+			result = SITWC_steel_sword;
 		}
-
-		if( categoryName == "silversword" )
+		else if( categoryName == "silversword" )
 		{
-			return SITWC_silver_sword;
+			result = SITWC_silver_sword;
 		}
-
-		if( categoryName == "crossbow" )
+		else if( categoryName == "crossbow" )
 		{
-			return SITWC_crossbow;
+			result = SITWC_crossbow;
 		}
-
-		if( categoryName == "bolt" )
+		else if( categoryName == "bolt" )
 		{
-			return SITWC_bolt;
+			result = SITWC_bolt;
 		}
-
-		if( categoryName == "armor" )
+		else if( categoryName == "armor" )
 		{
-			return SITWC_armor;
+			result = SITWC_armor;
 		}
-
-		if( categoryName == "gloves" )
+		else if( categoryName == "gloves" )
 		{
-			return SITWC_gloves;
+			result = SITWC_gloves;
 		}
-
-		if( categoryName == "pants" )
+		else if( categoryName == "pants" )
 		{
-			return SITWC_pants;
+			result = SITWC_pants;
 		}
-
-		if( categoryName == "boots" )
+		else if( categoryName == "boots" )
 		{
-			return SITWC_boots;
+			result = SITWC_boots;
 		}
-
-		if( categoryName == "trophy" )
+		else if( categoryName == "trophy" )
 		{
-			return SITWC_trophy;
+			result = SITWC_trophy;
 		}
-
-		if( StrBeginsWith( categoryName, "horse_" ) )
+		else if( StrBeginsWith( categoryName, "horse_" ) )
 		{
-			return SITWC_horse;
+			result = SITWC_horse;
 		}
-		return SITWC_other;
-		// Not proud of this cmplexity, especially after the switch in Initialize...
+		return result;
+		// Not proud of this complexity, especially after the switch in Initialize...
 	}
 
 	/*
-	Overrides Compare from sorter.ws
-	Compares two sortable elements between them
-	Returns a negative integer if the left element should be sorted before the right one,
-	0 if both elements cannot be distinguished, a positive integer otherwise.
-	Compare by quality first, then by localized name.
+	Compares two items of the weapon tab.
+	Compares by quality first, then by localized name.
 	*/
-	protected function Compare( left: SitSortable, right: SitSortable, optional categoryIndex: int ): int
+	protected /*override*/ function Compare( left: SitSortable,
+		right: SitSortable,
+		optional categoryIndex: int ): int
 	{
-		var l_quality, r_quality: int;
+		var result: int;
 
 		switch( categoryIndex )
 		{
 			case SITWC_rune:
 			case SITWC_glyph:
-				return CompareUpgrades( left, right );
+				result = CompareUpgrades( left, right );
+				break;
 			case SITWC_weapon_tool:
 			case SITWC_armor_tool:
-				return CompareTools( left, right );
+				result = CompareTools( left, right );
+				break;
 			default:
-				;
+				result = CompareByQualityOrName( left, right );
 		}
-		l_quality = left.GetFlashObject().GetMemberFlashInt( "quality" );
-		r_quality = right.GetFlashObject().GetMemberFlashInt( "quality" );
-
-		if( l_quality == r_quality )
-		{
-			return super.Compare( left, right );
-		}
-		return r_quality - l_quality;
+		return result;
 	}
 
 	private function CompareUpgrades( left: SitSortable, right: SitSortable ): int
 	{
-		var l_quality, r_quality: int;
+		var l_quality, r_quality, result: int;
 
 		// default: assume normal (neither lesser nor greater)
 		l_quality = 1;
@@ -254,26 +236,43 @@ class SitWeaponSorter extends SitDualCellsContainerSorter
 		{
 			r_quality = 2;
 		}
+		result = r_quality - l_quality;
 
-		if( l_quality == r_quality )
+		if( result == 0 )
 		{
-			return super.Compare( left, right );
+			result = super.Compare( left, right );
 		}
-		return r_quality - l_quality;
+		return result;
 	}
 
 	private function CompareTools( left: SitSortable, right: SitSortable ): int
 	{
-		var l_quality, r_quality: int;
+		var l_quality, r_quality, result: int;
 
-		// Obtain quality from name (last char is a digit, smaller is lesser
+		// Obtain quality from name (last char is a digit, smaller is lesser)
 		l_quality = StringToInt( StrRight( left.GetName(), 1 ) );
 		r_quality = StringToInt( StrRight( right.GetName(), 1 ) );
+		result = r_quality - l_quality;
 
-		if( l_quality == r_quality )
+		if( result == 0 )
 		{
-			return super.Compare( left, right );
+			result = super.Compare( left, right );
 		}
-		return r_quality - l_quality;
+		return result;
+	}
+
+	private function CompareByQualityOrName( left: SitSortable, right: SitSortable ): int
+	{
+		var l_quality, r_quality, result: int;
+
+		l_quality = left.GetFlashObject().GetMemberFlashInt( "quality" );
+		r_quality = right.GetFlashObject().GetMemberFlashInt( "quality" );
+		result = r_quality - l_quality;
+
+		if( result == 0 )
+		{
+			result = super.Compare( left, right );
+		}
+		return result;
 	}
 }

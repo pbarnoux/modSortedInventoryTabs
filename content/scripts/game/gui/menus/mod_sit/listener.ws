@@ -1,5 +1,5 @@
 /*
-Mod entry point.
+Mod entry point when not dealing with a NPC.
 Notified when some methods are triggered in base scripts.
 */
 class SitListener
@@ -9,7 +9,6 @@ class SitListener
 	public function Initialize( playerInv: W3GuiPlayerInventoryComponent, optional shopInv: W3GuiShopInventoryComponent ): void
 	{
 		_playerInv = playerInv;
-		LogChannel( 'MOD_SIT', "SitListener initialized" );
 	}
 
 	/*
@@ -39,7 +38,6 @@ class SitListener
 		{
 			delegate = GetDelegate( tabIndex );
 			sorter.Initialize( delegate );
-			LogChannel( 'MOD_SIT', "SitListener.OnPopulateTabData" );
 			sorter.Sort( sortables, entriesArray );
 			delete sorter;
 
@@ -60,7 +58,9 @@ class SitListener
 		var uiData   : SInventoryItemUIData;
 		var rawItems : array< SItemUniqueId >;
 		var item     : SItemUniqueId;
+		var result   : bool;
 
+		result = false;
 		_playerInv.SetFilterType( IFT_QuestItems );
 		inv = _playerInv.GetInventoryComponent();
 		inv.GetAllItems( rawItems );
@@ -79,13 +79,13 @@ class SitListener
 					{
 						if( !inv.IsBookRead( item ) )
 						{
-							return true;
+							result = true;
 						}
 					}
 				}
 			}
 		}
-		return false;
+		return result;
 	}
 
 	/*
@@ -114,7 +114,7 @@ class SitListener
 
 	/*
 	Returns a delegate sorter handling items not managed by the primary sorter.
-	Returns NULL if in this case and for this tab a delegate is not necessary.
+	Returns NULL if a delegate is not necessary.
 	*/
 	protected function GetDelegate( tabIndex: int ): SitSorter
 	{

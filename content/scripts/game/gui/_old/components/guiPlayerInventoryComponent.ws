@@ -450,9 +450,10 @@ class W3GuiPlayerInventoryComponent extends W3GuiBaseInventoryComponent
 
 	// ++ modSortedInventoryTabs ++
 	/*
-	Overrides CreateSortableForFlashObject in guiBaseInventoryComponent to add shop related stuff
+	Extracts shop related information into the SitSortable wrapping this flash object.
 	*/
-	protected function CreateSortableForFlashObject( item: SItemUniqueId, flashObject: CScriptedFlashObject ): SitSortable
+	protected /*override*/ function CreateSortableForFlashObject( item: SItemUniqueId,
+		flashObject: CScriptedFlashObject ): SitSortable
 	{
 		var sortable: SitSortable;
 		var sellable: bool;
@@ -464,8 +465,8 @@ class W3GuiPlayerInventoryComponent extends W3GuiBaseInventoryComponent
 	}
 
 	/*
-	By inserting this function in the legacy code and the mod, any change in legacy logic will create a conflict
-	Quickly asserts whether the mod stays compliant with new game version or not
+	Quickly asserts whether the mod stays compliant with new game version or not.
+	This method is also called from legacy code, if it changes, it will raise a conflict when cherry-picking diffs.
 	*/
 	protected function IsSellable( item: SItemUniqueId ): bool
 	{
