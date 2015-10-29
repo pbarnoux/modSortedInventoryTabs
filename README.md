@@ -15,7 +15,10 @@ is:
 - quest and book tabs: unread document > already read document > other;
 - ingredient tab: alcohol (consumed by medidation) > alchemy ingredient >
   common mutagens > monster mutagen > crafting ingredient > other;
-- other tab: currencies > other > junk.
+- other tab: currencies > other > junk;
+- weapon tab: runes > glyphs > weapon tools > armor tools > steel swords >
+  silver swords > crossbows > bolts for crossbows > armors (body part) > gloves
+  > pants > boots > trophies > horse stuff > other items.
 
 By default, inside each category, items are sorted by their localized name in
 natural order (case insensitive). Following categories overrides this behavior:
@@ -27,7 +30,17 @@ natural order (case insensitive). Following categories overrides this behavior:
 - alcohols consumed by mutagen (alchemy tab): by priority (first displayed will
   be first consumed);
 - common mutagens (alchemy tab): by quality first (greater > normal > lesser),
-  in case of tie by the localized name.
+  in case of tie by the localized name;
+- upgrades (runes and glyphs of the weapon tab): by quality first (greater >
+  normal > lesser), in case of tie by the localized name;
+- tools (weapons and armors repair kits of the weapon tab): by quality (master
+  > journeyman > amateur);
+- items spanning on 2 cells (weapon tab): by quality first (witcher > relic >
+  magic > masteritem > normal), in case of tie by localized name.
+
+When dealing with a merchant, items that can be sold are offered first sorted
+by their localized name. On the weapon tabs, items spanning on two cells of low
+quality and low price are offered first to enable to quickly unclutter the tab.
 
 #Manual installation
 Locate the `game install folder` (for instance `C:\GoG\The Witcher3`) on the
@@ -41,8 +54,9 @@ directory. The game engine will compile scripts when started (one time only).
 
 ##The Witcher 3: The Wild Hunt
 
-### Version 1.10
+### Version 1.10 or 1.11
 
+- [release 1.1.3][1.1.3] sorts all tabs;
 - [release 1.1.2][1.1.2] sorts the content of all tabs but the weapon tab. When
   dealing with a merchant, items that can be sold have priority on other items
   (restores the vanilla game behavior);
@@ -72,6 +86,7 @@ scripts. Calling these features will always bypass this mod.
 
 Refer to the documentation on the [Nexus site][nexus].
 
+[1.1.3]: https://github.com/pbarnoux/modSortedInventoryTabs/releases/tag/1.1.3
 [1.1.2]: https://github.com/pbarnoux/modSortedInventoryTabs/releases/tag/1.1.2
 [1.1.1]: https://github.com/pbarnoux/modSortedInventoryTabs/releases/tag/1.1.1
 [1.0.1]: https://github.com/pbarnoux/modSortedInventoryTabs/releases/tag/1.0.1
