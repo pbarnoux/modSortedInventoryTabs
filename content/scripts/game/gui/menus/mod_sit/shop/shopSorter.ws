@@ -10,8 +10,10 @@ class SitShopSorter extends SitDualCellsContainerSorter
 	/*
 	Inserts a sellable category first and push other categories from base class
 	*/
-	public /*override*/ function Initialize( optional delegate: SitSorter ): void
+	public /*override*/ function Initialize( playerInv: W3GuiPlayerInventoryComponent,
+		optional delegate: SitSorter ): void
 	{
+		super.Initialize( playerInv, delegate );
 		_delegate = delegate;
 		_categories.PushBack( _sellables );
 	}

@@ -60,13 +60,17 @@ class SitShopListener extends SitListener
 
 		if( _delegate )
 		{
-			_delegate.Initialize();
+			_delegate.Initialize( _playerInv );
 
-			if( tabIndex == InventoryMenuTab_Weapons )
+			switch( tabIndex )
 			{
-				return new SitShopWeaponSorter in this;
+				case InventoryMenuTab_Weapons:
+					return new SitShopWeaponSorter in this;
+				case InventoryMenuTab_Potions:
+					return new SitShopPotionSorter in this;
+				default:
+					return new SitShopSorter in this;
 			}
-			return new SitShopSorter in this;
 		}
 		return NULL;
 	}

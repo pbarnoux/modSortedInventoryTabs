@@ -51,8 +51,9 @@ is:
 By default, inside each category, items are sorted by their localized name in
 natural order (case insensitive). Following categories overrides this behavior:
 
-- all categories in usable tab: by quality first (superior > enhanced >
-  normal), in case of tie by the localized name;
+- all categories but food in usable tab: by quality first (superior > enhanced
+  > normal), in case of tie by the localized name;
+- food (edibles and drinks): best regen stat first (duration, vitality regained)
 - all categories in quest and book tabs: new (starred) items first, in case of
   tie by the the localized name;
 - alcohols consumed by mutagen (alchemy tab): by priority (first displayed will
@@ -67,8 +68,8 @@ natural order (case insensitive). Following categories overrides this behavior:
   magic > masteritem > normal), in case of tie by localized name.
 
 When dealing with a merchant, items that can be sold are offered first sorted
-by their localized name. On the weapon tabs, items spanning on two cells of low
-quality and low price are offered first to enable to quickly unclutter the tab.
+by their localized name. On the weapon and usable tabs, items that are likely
+to clutter the inventory are offered first (usually low quality, cheap items).
 
 #Manual installation
 Locate the `game install folder` (for instance `C:\GoG\The Witcher3`) on the

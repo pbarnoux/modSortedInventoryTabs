@@ -211,6 +211,37 @@ abstract class W3GuiBaseInventoryComponent
 	}
 
 	/*
+	Enrich sortables with additional values required in edge cases only
+	*/
+	public function ExtractRegenEffect( sortable: SitSortable ): void
+	{
+		var index    : int;
+		var dValue   : float;
+		var buffs    : array < SEffectInfo >;
+		var min, max : SAbilityAttributeValue;
+		var dm       : CDefinitionsManagerAccessor;
+		var ability  : name;
+
+		dm = theGame.GetDefinitionsManager();
+		_inv.GetItemBuffs( sortable.GetItemId(), buffs );
+
+		for( index = 0; index < buffs.Size(); index += 1 )
+		{
+			ability = buffs[ index ].effectAbilityName;
+			dm.GetAbilityAttributeValue( ability, 'vitalityRegen', min, max );
+			dValue = CalculateAttributeValue( GetAttributeRandomizedValue( min, max ) );
+			if( dValue > 0 )
+			{
+				sortable.SetDuration( dValue );
+				dm.GetAbilityAttributeValue( ability, 'duration', min, max );
+				dValue = CalculateAttributeValue( GetAttributeRandomizedValue( min, max ) );
+				sortable.SetVitalityRegen( dValue );
+				break;
+			}
+		}
+	}
+
+	/*
 	Extracts inventory related information into the SitSortable wrapping this flash object.
 	*/
 	function CreateSortableForFlashObject( item: SItemUniqueId, flashObject: CScriptedFlashObject ): SitSortable
@@ -221,6 +252,7 @@ abstract class W3GuiBaseInventoryComponent
 		uiData = _inv.GetInventoryItemUIData( item );
 		sortable = new SitSortable in this;
 		sortable.Initialize (
+			item,
 			flashObject,
 			_inv.GetItemName( item ),
 			GetLocStringByKeyExt( _inv.GetItemLocalizedNameByUniqueID( item ) ),
