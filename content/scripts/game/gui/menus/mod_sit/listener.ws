@@ -37,14 +37,14 @@ class SitListener
 		if( sorter )
 		{
 			delegate = GetDelegate( tabIndex );
-			sorter.Initialize( delegate );
+			sorter.Initialize( _playerInv, delegate );
 			sorter.Sort( sortables, entriesArray );
-			delete sorter;
 
 			if( delegate )
 			{
 				delete delegate;
 			}
+			delete sorter;
 		}
 	}
 
