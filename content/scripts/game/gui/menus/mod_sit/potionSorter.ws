@@ -31,11 +31,12 @@ class SitPotionSorter extends SitSorter
 	Create containers for each category.
 	Containers are sorted accorded to the SitPotionCategory enumeration.
 	*/
-	public /*override*/ function Initialize( optional delegate: SitSorter ): void
+	public /*override*/ function Initialize( playerInv: W3GuiPlayerInventoryComponent,
+		optional delegate: SitSorter ): void
 	{
 		var index, max: int;
 
-		super.Initialize( delegate );
+		super.Initialize( playerInv, delegate );
 		max = EnumGetMax( 'SitPotionCategory' );
 
 		for( index = 0; index <= max; index += 1 )
@@ -110,6 +111,11 @@ class SitPotionSorter extends SitSorter
 		{
 			result = SITPC_bomb;
 		}
+		else
+		{
+			// Fetch the duration value for edibles and drinks
+			_playerInv.ExtractRegenEffect( element );
+		}
 		return result;
 	}
 
@@ -120,16 +126,65 @@ class SitPotionSorter extends SitSorter
 		right: SitSortable,
 		optional categoryIndex: int ): int
 	{
-		var l_quality, r_quality, result: int;
+		var result: int;
 
-		l_quality = left.GetFlashObject().GetMemberFlashInt( "quality" );
-		r_quality = right.GetFlashObject().GetMemberFlashInt( "quality" );
-		result = r_quality - l_quality;
+		if( categoryIndex == SITPC_other )
+		{
+			result = CompareByDuration( left, right );
+		}
+		else
+		{
+			result = CompareByQuality( left, right );
+		}
 
 		if( result == 0 )
 		{
 			result = super.Compare( left, right );
 		}
 		return result;
+	}
+
+	/*
+	Best quality first (superior > enhanced > normal)
+	*/
+	private function CompareByQuality( left: SitSortable, right: SitSortable ): int
+	{
+		var l_quality, r_quality: int;
+
+		l_quality = left.GetFlashObject().GetMemberFlashInt( "quality" );
+		r_quality = right.GetFlashObject().GetMemberFlashInt( "quality" );
+		return r_quality - l_quality;
+	}
+
+	/*
+	Longest effect first
+	*/
+	private function CompareByDuration( left: SitSortable, right: SitSortable ): int
+	{
+		var l_duration, r_duration: float;
+		var result: int;
+
+		l_duration = left.GetDuration();
+		r_duration = right.GetDuration();
+		result = RoundF( r_duration - l_duration );
+
+		if( result == 0 )
+		{
+			result = CompareByVitalityRegen( left, right );
+		}
+		return result;
+	}
+
+	/*
+	Highest regen effect first
+	*/
+	private function CompareByVitalityRegen( left: SitSortable, right: SitSortable ): int
+	{
+		var l_regen, r_regen: float;
+		var result: int;
+
+		l_regen = left.GetVitalityRegen();
+		r_regen = right.GetVitalityRegen();
+		return RoundF( r_regen - l_regen );
 	}
 }

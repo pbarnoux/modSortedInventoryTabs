@@ -23,8 +23,9 @@ is:
 By default, inside each category, items are sorted by their localized name in
 natural order (case insensitive). Following categories overrides this behavior:
 
-- all categories in usable tab: by quality first (superior > enhanced >
-  normal), in case of tie by the localized name;
+- all categories but food in usable tab: by quality first (superior > enhanced
+  > normal), in case of tie by the localized name;
+- food (edibles and drinks): best regen stat first (duration, vitality regained)
 - all categories in quest and book tabs: new (starred) items first, in case of
   tie by the the localized name;
 - alcohols consumed by mutagen (alchemy tab): by priority (first displayed will
@@ -39,8 +40,8 @@ natural order (case insensitive). Following categories overrides this behavior:
   magic > masteritem > normal), in case of tie by localized name.
 
 When dealing with a merchant, items that can be sold are offered first sorted
-by their localized name. On the weapon tabs, items spanning on two cells of low
-quality and low price are offered first to enable to quickly unclutter the tab.
+by their localized name. On the weapon and usable tabs, items that are likely
+to clutter the inventory are offered first (usually low quality, cheap items).
 
 #Manual installation
 Locate the `game install folder` (for instance `C:\GoG\The Witcher3`) on the
@@ -56,6 +57,8 @@ directory. The game engine will compile scripts when started (one time only).
 
 ### Version 1.10 or 1.11
 
+- [release 1.1.4][1.1.4] food is now sorted by usefulness (longest duration and
+  highest vitality regen first, reversed when dealing with a merchant);
 - [release 1.1.3][1.1.3] sorts all tabs;
 - [release 1.1.2][1.1.2] sorts the content of all tabs but the weapon tab. When
   dealing with a merchant, items that can be sold have priority on other items
@@ -86,6 +89,7 @@ scripts. Calling these features will always bypass this mod.
 
 Refer to the documentation on the [Nexus site][nexus].
 
+[1.1.4]: https://github.com/pbarnoux/modSortedInventoryTabs/releases/tag/1.1.4
 [1.1.3]: https://github.com/pbarnoux/modSortedInventoryTabs/releases/tag/1.1.3
 [1.1.2]: https://github.com/pbarnoux/modSortedInventoryTabs/releases/tag/1.1.2
 [1.1.1]: https://github.com/pbarnoux/modSortedInventoryTabs/releases/tag/1.1.1

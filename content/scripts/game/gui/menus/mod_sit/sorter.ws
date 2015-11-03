@@ -4,6 +4,8 @@ Specific features are found in methods overriden by subclasses.
 */
 abstract class SitSorter
 {
+	/* A handle on the player inventory */
+	protected var _playerInv     : W3GuiPlayerInventoryComponent;
 	/* The list of categories */
 	protected var _categories    : array < array < SitSortable > >;
 	/* A list of grid slots indexes used by items spanning on two cells (axes, swords ...). */
@@ -11,9 +13,9 @@ abstract class SitSorter
 	/* Contains the nearest index of a free slot on the grid */
 	protected var _free_slot     : int; default _free_slot = 0;
 
-	public function Initialize( optional delegate: SitSorter ): void
+	public function Initialize( playerInv: W3GuiPlayerInventoryComponent, optional delegate: SitSorter ): void
 	{
-		// Nothing to do at this level
+		_playerInv = playerInv;
 	}
 
 	/*

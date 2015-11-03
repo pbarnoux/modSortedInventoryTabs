@@ -23,11 +23,12 @@ class SitOtherSorter extends SitSorter
 	Create containers for each category.
 	Containers are sorted accorded to the SitOtherCategory enumeration.
 	*/
-	public /*override*/ function Initialize( optional delegate: SitSorter ): void
+	public /*override*/ function Initialize( playerInv: W3GuiPlayerInventoryComponent,
+		optional delegate: SitSorter ): void
 	{
 		var index, max: int;
 
-		super.Initialize( delegate );
+		super.Initialize( playerInv, delegate );
 		max = EnumGetMax( 'SitOtherCategory' );
 
 		for( index = 0; index <= max; index += 1 )
