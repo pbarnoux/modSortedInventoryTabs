@@ -77,6 +77,11 @@ directory. The game engine will compile scripts when started (one time only).
 
 ##The Witcher 3: The Wild Hunt
 
+### Version 1.12
+
+- [release 1.3.2][1.3.2] No change inside mod. Base scripts have been updated
+  to facilitate merge operations when installing with other mods.
+
 ### Version 1.10 or 1.11
 
 - [release 1.3.1][1.3.1] food is now sorted by usefulness (longest duration and
@@ -115,6 +120,8 @@ scripts. Calling these features will always bypass this mod.
 
 Refer to the documentation on the [Nexus site][nexus].
 
+[1.3.2]: https://github.com/pbarnoux/modSortedInventoryTabs/releases/tag/1.3.2
+[1.3.1]: https://github.com/pbarnoux/modSortedInventoryTabs/releases/tag/1.3.1
 [1.3.1]: https://github.com/pbarnoux/modSortedInventoryTabs/releases/tag/1.3.1
 [1.3.0]: https://github.com/pbarnoux/modSortedInventoryTabs/releases/tag/1.3.0
 [1.2.2]: https://github.com/pbarnoux/modSortedInventoryTabs/releases/tag/1.2.2
