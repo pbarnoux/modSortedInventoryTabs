@@ -1,17 +1,25 @@
-/***********************************************************************/
-/** 	© 2015 CD PROJEKT S.A. All rights reserved.
-/** 	THE WITCHER® is a trademark of CD PROJEKT S. A.
-/** 	The Witcher game is based on the prose of Andrzej Sapkowski.
-/***********************************************************************/
+/*
+// Match witcher3.views.inventory.InventoryGridCategory
+enum EInventoryGridType
+{
+	IGT_None, // e.g., NoShow/NoDrop tagged items
+	IGT_Main,
+	IGT_Quest,
+	IGT_Crafting,
+	IGT_Alchemy,
+	IGT_Paperdoll,
+	IGT_Container,
+	IGT_Shop,
+}
+*/
 
-
-
+//--------------------------------------------------------------------------------------------------------
 
 abstract class W3GuiBaseInventoryComponent
 {
 	protected var _inv : CInventoryComponent;
 	
-	protected var filteredItems : array< SItemUniqueId >;
+	//protected var filteredItems : array< SItemUniqueId >;
 	protected var highlightedItems : array< name >;
 	
 	private var ITEM_NEED_REPAIR_DISPLAY_VALUE : int;
@@ -22,12 +30,28 @@ abstract class W3GuiBaseInventoryComponent
 		_inv = inv;
 	}
 	
-	
+	// For override
 	protected function InvalidateItems( items : array<SItemUniqueId> )
 	{
 	}
 	
+	/*
+	public function AddAnItem( item : SItemUniqueId )
+	{
+		var invalidatedItems : array< SItemUniqueId >;
+		_inv.AddAnItem( item );
+		invalidatedItems.PushBack( item );
+		InvalidateItems( invalidatedItems );
+	}
 	
+	public function RemoveItem( item : SItemUniqueId, optional quantity : int )
+	{
+		var invalidatedItems : array< SItemUniqueId >;
+		_inv.RemoveItem( item, quantity );
+		invalidatedItems.PushBack( item );
+		InvalidateItems( invalidatedItems );
+	}
+	*/
 		
 	public function GetInventoryComponent() : CInventoryComponent
 	{
@@ -42,7 +66,7 @@ abstract class W3GuiBaseInventoryComponent
 	public function GiveItem( itemId: SItemUniqueId, customer : W3GuiBaseInventoryComponent, optional quantity : int, optional out newItemID : SItemUniqueId ) : bool
 	{
 		var invalidatedItems : array< SItemUniqueId >;
-		
+		//var newItem : SItemUniqueId;
 		var success: bool;
 		
 		if( quantity  < 1 )
@@ -55,7 +79,7 @@ abstract class W3GuiBaseInventoryComponent
 		if ( customer.ReceiveItem( itemId, this, quantity, newItemID ) )
 		{
 			success = true;
-			invalidatedItems.PushBack( itemId ); 
+			invalidatedItems.PushBack( itemId ); // Removed from inventory
 			InvalidateItems( invalidatedItems );
 		}
 		
@@ -72,8 +96,8 @@ abstract class W3GuiBaseInventoryComponent
 		{
 			quantity = 1;
 		}
-		
-		newItemID = giver._inv.GiveItemTo( _inv, itemId, quantity, true );
+		//quantity = giver._inv.GetItemQuantity( item ); //#B
+		newItemID = giver._inv.GiveItemTo( _inv, itemId, quantity, true );//#B
 		if ( newItemID != GetInvalidUniqueId() )
 		{
 			invalidatedItems.PushBack( newItemID );
@@ -90,8 +114,8 @@ abstract class W3GuiBaseInventoryComponent
 		
 		canDrop = !_inv.ItemHasTag(item, 'NoDrop') && !_inv.ItemHasTag(item, 'Quest');
 		
-		
-		
+		//Tutorial hack - in forced alchemy tutorial we cook Thunderbolt 1 potion and we have to make sure you cannot drop it.
+		//It's a general item so it cannot have NoDrop or Quest tags and there is no way to dynamically add/remove tags from items.
 		if(canDrop && FactsQuerySum("tut_forced_preparation") > 0 && _inv.GetItemName(item) == 'Thunderbolt 1')
 		{
 			canDrop = false;
@@ -100,10 +124,10 @@ abstract class W3GuiBaseInventoryComponent
 		return canDrop;
 	}
 	
-	public function DropItem( item : SItemUniqueId, quantity : int ) 
+	public function DropItem( item : SItemUniqueId, quantity : int ) // #B probably not in use
 	{
 		var invalidatedItems : array< SItemUniqueId >;
-		if( CanDrop(item ) ) 
+		if( CanDrop(item ) ) // #B because we don't want player to drop quest items
 		{
 				_inv.DropItemInBag(item, quantity);
 				invalidatedItems.PushBack( item );
@@ -124,8 +148,8 @@ abstract class W3GuiBaseInventoryComponent
 		InvalidateItems( invalidatedItems );
 	}
 	
-	
-	
+	//--------------------------------------------------------------------------------------------------------
+	//									DATA
 	
 	public function GetInventoryFlashArray( out flashArray : CScriptedFlashArray, flashObject : CScriptedFlashObject ) : void
 	{
@@ -135,7 +159,7 @@ abstract class W3GuiBaseInventoryComponent
 		var l_flashObject : CScriptedFlashObject;
 		
 		_inv.GetAllItems( rawItems );
-		filteredItems.Clear();
+		//filteredItems.Clear();
 		
 		for ( i = 0; i < rawItems.Size(); i += 1 )
 		{		
@@ -143,13 +167,13 @@ abstract class W3GuiBaseInventoryComponent
 			
 			if ( ShouldShowItem( item ) )
 			{
-				filteredItems.PushBack( item );
+				//filteredItems.PushBack( item );
 				l_flashObject = flashObject.CreateFlashObject("red.game.witcher3.menus.common.ItemDataStub");
 				SetInventoryFlashObjectForItem( item, l_flashObject );
 				flashArray.PushBackFlashObject(l_flashObject);
 			}
 		}
-	}
+	}	
 	
 	// ++ modSortedInventoryTabs ++
 	/*
@@ -168,7 +192,7 @@ abstract class W3GuiBaseInventoryComponent
 		var sortable      : SitSortable;
 
 		_inv.GetAllItems( rawItems );
-		filteredItems.Clear();
+		//filteredItems.Clear();
 
 		for ( i = 0; i < rawItems.Size(); i += 1 )
 		{
@@ -176,7 +200,7 @@ abstract class W3GuiBaseInventoryComponent
 
 			if ( ShouldShowItem( item ) )
 			{
-				filteredItems.PushBack( item );
+				//filteredItems.PushBack( item );
 				l_flashObject = flashObject.CreateFlashObject("red.game.witcher3.menus.common.ItemDataStub");
 				SetInventoryFlashObjectForItem( item, l_flashObject );
 				flashArray.PushBackFlashObject(l_flashObject);
@@ -251,7 +275,7 @@ abstract class W3GuiBaseInventoryComponent
 	}
 	// -- modSortedInventoryTabs --
 
-	public function HasNewFlagOnItem() : bool
+	public function HasNewFlagOnItem( optional out hasVisibleItems : bool ) : bool
 	{
 		var i : int;
 		var item : SItemUniqueId;
@@ -259,14 +283,17 @@ abstract class W3GuiBaseInventoryComponent
 		var uiData : SInventoryItemUIData;
 		
 		_inv.GetAllItems( rawItems );
-		filteredItems.Clear();
+		//filteredItems.Clear();
+		
+		hasVisibleItems = false;
 		
 		for ( i = 0; i < rawItems.Size(); i += 1 )
-		{		
+		{
 			item = rawItems[i];
 			
 			if ( ShouldShowItem( item ) )
 			{
+				hasVisibleItems = true;
 				uiData = _inv.GetInventoryItemUIData( item );
 				
 				if (uiData.isNew)
@@ -286,13 +313,13 @@ abstract class W3GuiBaseInventoryComponent
 		
 		_inv.GetItemTags( item, itemTags );
 		
-		
+		// Automatically exclude
 		if ( itemTags.Contains( theGame.params.TAG_DONT_SHOW) )
 		{
 			return false;
 		}
 		
-		if ( _inv.GetItemName( item ) == 'Crowns' ) return false; 
+		if ( _inv.GetItemName( item ) == 'Crowns' ) return false; // never show crowns in the game!
 		
 		if(_inv.GetEntity() == thePlayer && itemTags.Contains( theGame.params.TAG_DONT_SHOW_ONLY_IN_PLAYERS))
 		{
@@ -318,15 +345,25 @@ abstract class W3GuiBaseInventoryComponent
 		{
 			actionType = IAT_None;
 		}
-		
-		
-		
-		
-		
-		
-		
-		
-		
+		///////////////////////////////////////////
+		//
+		// QUICK UGLY FIX, THAT SHOULD BE RATHER DONE IN A DIFFERENT WAY
+		// (prevents equiping mutagens in inventory instead of preparation)
+		// 
+		/*else if ( tags.Contains('Mutagen') )
+		{
+			if ( (CR4InventoryMenu)GetParent() )
+			{
+				actionType = IAT_None;
+			}
+			else
+			{
+				actionType = IAT_Equip;
+			}
+		}*/
+		//
+		//
+		///////////////////////////////////////////
 		else if(
 				tags.Contains('Weapon') || tags.Contains('Armor') ||
 			    tags.Contains('QuickSlot') || tags.Contains('Potion') || tags.Contains('Petard') || 			    
@@ -350,7 +387,7 @@ abstract class W3GuiBaseInventoryComponent
 			}
 			else
 			{
-				actionType = IAT_UpgradeWeapon; 
+				actionType = IAT_UpgradeWeapon; // FIX DATA!
 			}
 		}
 		else if ( tags.Contains('Edibles' ) || tags.Contains('Drinks' ))
@@ -366,8 +403,14 @@ abstract class W3GuiBaseInventoryComponent
 			actionType = IAT_Socket;
 		}
 		
-			
-		
+		/*else if (tags.Contains(theGame.params.TAG_MOBILE_CAMPFIRE))
+		{
+			actionType = IAT_MobileCampfire;
+		}*/	
+		/*else if (tags.Contains('Substance'))
+		{
+			actionType = IAT_Extract;
+		}*/
 				
 		if ( actionType == IAT_None )
 		{
@@ -410,6 +453,7 @@ abstract class W3GuiBaseInventoryComponent
 		var weight : float;
 		var durability : float;
 		var price : int;
+		var colorName:name;
 		
 		var i : int;
 		var highlightedItemsCount : int;
@@ -417,6 +461,7 @@ abstract class W3GuiBaseInventoryComponent
 		var quantity : int;
 		var bRead : bool;
 		var tmp: bool;
+		var chargesCount:int;
 		
 		uiData = _inv.GetInventoryItemUIData( item );
 		slotType = GetItemEquippedSlot( item );
@@ -424,7 +469,7 @@ abstract class W3GuiBaseInventoryComponent
 		isQuest = _inv.ItemHasTag(item,'Quest');
 		canDrop = !isQuest && !_inv.ItemHasTag(item, 'NoDrop');
 			
-		if( slotType == EES_Quickslot2 ) 
+		if( slotType == EES_Quickslot2 ) // #B kill
 		{
 			slotType = EES_Quickslot1;
 		}
@@ -434,18 +479,24 @@ abstract class W3GuiBaseInventoryComponent
 		{
 			if(_inv.IsItemSingletonItem(item))
 			{
-				maxAmmo = thePlayer.inv.SingletonItemGetMaxAmmo(item);
-				
-				if (maxAmmo > 0)
+				if( thePlayer.inv.SingletonItemGetMaxAmmo(item) > 0 )
 				{
-					charges = thePlayer.inv.SingletonItemGetAmmo(item) + "/" + thePlayer.inv.SingletonItemGetMaxAmmo(item);
+					chargesCount = thePlayer.inv.SingletonItemGetAmmo(item);
+					
+					if( chargesCount <= 0 )
+					{
+						charges = "<font color=\"#CC0000\">" +  chargesCount + " " +"</font>";
+					}
+					else
+					{
+						charges = "<font color=\"#DEDEDE\">" +  chargesCount +  " " +"</font>";
+					}
 				}
 				else
 				{
 					charges = "";
 				}
 				
-				quantity = 1;
 				flashObject.SetMemberFlashString( "charges",  charges);
 				flashObject.SetMemberFlashInt( "quantity", quantity);
 			}
@@ -455,6 +506,8 @@ abstract class W3GuiBaseInventoryComponent
 				flashObject.SetMemberFlashInt( "quantity", quantity);
 			}
 		}
+		
+		itemName = _inv.GetItemName(item); // temp
 		
 		highlightedItemsCount = highlightedItems.Size();
 		if (highlightedItemsCount > 0)
@@ -471,20 +524,20 @@ abstract class W3GuiBaseInventoryComponent
 		}		
 		
 		// ++ modSortedInventoryTabs ++
-		if( IsReadable( item ) )
+		if( IsReadable( item ) && !isItemSchematic( item ) )
 		{
 		// -- modSortedInventoryTabs --
 			bRead = _inv.IsBookRead(item);
-			
+			//LogChannel('Inventory_Books', "SetItemDataStub book name "+_inv.GetItemName(item)+" readed "+ bRead );
 			flashObject.SetMemberFlashBool( "isReaded", bRead );
 		}
 		
 		durability = _inv.GetItemDurability(item) / _inv.GetItemMaxDurability(item);
 		weight = _inv.GetItemEncumbrance( item );
 		price = _inv.GetItemQuantity(item) * _inv.GetItemPrice(item);
-		flashObject.SetMemberFlashNumber("durability", durability); 
-		flashObject.SetMemberFlashNumber("weight", weight); 
-		flashObject.SetMemberFlashInt( "price", price); 
+		flashObject.SetMemberFlashNumber("durability", durability); //#J used in sorting
+		flashObject.SetMemberFlashNumber("weight", weight); //#J used in sorting
+		flashObject.SetMemberFlashInt( "price", price); //#J used in sorting
 		flashObject.SetMemberFlashString( "iconPath",  _inv.GetItemIconPathByUniqueID(item) );
 		if (GridPositionEnabled())
 		{
@@ -494,12 +547,18 @@ abstract class W3GuiBaseInventoryComponent
 		{
 			flashObject.SetMemberFlashInt( "gridPosition", -1 );
 		}
-		gridSize =  Clamp( uiData.gridSize, 1, 2 ); 
+		gridSize =  Clamp( uiData.gridSize, 1, 2 ); // #B fix for deprecated item size ( above 2)
+		
+		if( _inv.IsItemColored( item ) )
+		{
+			colorName = _inv.GetItemColor( item );
+			flashObject.SetMemberFlashString( "itemColor", NameToString( colorName ) );
+		}
 		
 		flashObject.SetMemberFlashInt( "gridSize", gridSize );
 		flashObject.SetMemberFlashInt( "slotType", slotType );
 		flashObject.SetMemberFlashBool( "isNew", uiData.isNew );
-		flashObject.SetMemberFlashBool( "isOilApplied", _inv.ItemHasOilApplied(item) && !_inv.IsItemOil( item ) );
+		flashObject.SetMemberFlashBool( "isOilApplied", _inv.ItemHasAnyActiveOilApplied(item) && !_inv.IsItemOil( item ) );
 		flashObject.SetMemberFlashInt( "equipped", equipped );
 		
 		flashObject.SetMemberFlashInt( "quality", _inv.GetItemQuality( item ) );
@@ -507,13 +566,14 @@ abstract class W3GuiBaseInventoryComponent
 		flashObject.SetMemberFlashInt( "socketsUsedCount", _inv.GetItemEnhancementCount( item ) );
 		flashObject.SetMemberFlashInt( "groupId", -1);
 		
-		
+		// for D&D
 		flashObject.SetMemberFlashBool( "isSilverOil", _inv.ItemHasTag(item, 'SilverOil') );
 		flashObject.SetMemberFlashBool( "isSteelOil", _inv.ItemHasTag(item, 'SteelOil') );
 		flashObject.SetMemberFlashBool( "isArmorUpgrade", _inv.ItemHasTag(item, 'ArmorUpgrade') );
 		flashObject.SetMemberFlashBool( "isWeaponUpgrade",  _inv.ItemHasTag(item, 'WeaponUpgrade') );
 		flashObject.SetMemberFlashBool( "isArmorRepairKit", _inv.ItemHasTag(item, 'ArmorReapairKit') );
-		flashObject.SetMemberFlashBool( "isWeaponRepairKit", _inv.ItemHasTag(item, 'WeaponReapairKit') );		
+		flashObject.SetMemberFlashBool( "isWeaponRepairKit", _inv.ItemHasTag(item, 'WeaponReapairKit') );
+		flashObject.SetMemberFlashBool( "isDye", _inv.IsItemDye( item ) );
 		
 		flashObject.SetMemberFlashBool( "showExtendedTooltip", true );
 		
@@ -522,9 +582,9 @@ abstract class W3GuiBaseInventoryComponent
 		
 		if( _inv.HasItemDurability(item) )
 		{
-			
+			//curr = _inv.GetItemDurability(item);
 			curr = RoundMath( _inv.GetItemDurability(item) / _inv.GetItemMaxDurability(item) * 100);
-			
+			//max = _inv.GetItemMaxDurability(item); // #B because we want to display icon only below 25
 			
 			flashObject.SetMemberFlashNumber( "durability", curr );
 			
@@ -552,7 +612,7 @@ abstract class W3GuiBaseInventoryComponent
 			flashObject.SetMemberFlashInt( "actionType", GetItemActionType( item ) );
 		}
 		
-		
+		// red it out if item level is to high
 		if(thePlayer.HasBuff(EET_WolfHour))
 		{
 			cantEquip = (_inv.GetItemLevel(item) - 2) > thePlayer.GetLevel();
@@ -563,14 +623,15 @@ abstract class W3GuiBaseInventoryComponent
 		}
 		flashObject.SetMemberFlashBool( "cantEquip", cantEquip );
 		
+		// FIXME: Price factors
+		//flashObject.SetMemberFlashInt( "price", (int)_inv.GetItemPriceModified( item, true ) ); 
+		// E.g., a merchant could have it in whatever category
+		//valueSetter.SetMemberBoolean( 'isQuest', );
+		// The order of checks matter: what if we have an elixir that's also a quest item...
 		
-		
-		
-		
-		
-		
-		
+		//flashObject.SetMemberFlashString( "userData", GetTooltipText(item) );
 		flashObject.SetMemberFlashString( "category", _inv.GetItemCategory(item) );
+		
 	}
 	
 	public function GetItemQuantity( item : SItemUniqueId ):int
@@ -715,29 +776,55 @@ abstract class W3GuiBaseInventoryComponent
 		return _inv.GetItemCategory( item ) == 'crafting_schematic' || _inv.GetItemCategory( item ) == 'alchemy_recipe';
 	}
 	
+	public function isItemUsable( item : SItemUniqueId ) : bool
+	{
+		return _inv.IsItemUsable( item );
+	}
+	
+	public function IsItemDye( item : SItemUniqueId ) : bool
+	{
+		return _inv.IsItemDye( item );
+	}
+	
 	public function GetFilterTypeByItem( item : SItemUniqueId) : EInventoryFilterType
 	{
 		var filterType : EInventoryFilterType;
 		
-		if ( isItemReadable(item) && !isQuestItem( item ) )
+		if (( !isFoodItem( item ) && !isIngredientItem( item ) && !isWeaponItem( item ) && 
+			  !isArmorItem( item ) && ! isAlchemyItem( item ) && !isUpgradeItem( item ) && !isItemSchematic( item ) && 
+			  !isToolItem( item ) && !isHorseItem( item )) && !isQuickslotItem( item ) && !isItemUsable( item ) || isQuestItem( item ) )
+		{
+			return IFT_QuestItems;
+		}
+		else
+		if (isFoodItem( item ) || isHorseItem( item ))
+		{
+			return IFT_Default;
+		}
+		else
+		if( isIngredientItem( item ) && !IsItemDye( item ) )
+		{
+			return IFT_Ingredients;
+		}
+		else
+		if( isWeaponItem( item ) || isArmorItem( item ) || isUpgradeItem( item ) || isToolItem( item ) || isItemUsable( item ) || isQuickslotItem( item ) )
+		{
+			return IFT_Weapons;
+		}
+		else
+		if (!isQuestItem( item ) && isItemReadable( item ))
 		{
 			return IFT_Books;
 		}
-		else if( isQuestItem( item ) && !isHorseItem( item ) )
-		{
-			return IFT_QuestItems;
-		}			
-		else if( isIngredientItem( item ) )
-		{
-			return IFT_Ingredients;
-		}				
-		else if( isAlchemyItem( item )  ) 
+		else
+		if (isAlchemyItem( item ) && !isFoodItem(item))
 		{
 			return IFT_AlchemyItems;
-		}				
-		else if( isWeaponItem( item ) || isArmorItem( item ) || isUpgradeItem( item ) || isHorseItem(item) || isToolItem(item) )
+		}
+		else
+		if (isHorseItem( item ))
 		{
-			return IFT_Weapons;
+			return IFT_HorseItems;
 		}
 		else
 		{
@@ -811,7 +898,7 @@ abstract class W3GuiBaseInventoryComponent
 		finalString += htmlNewline;
 		for (i = 0; i < attributes.Size(); i += 1)
 		{
-			
+			// #J using temp string to follow since finalString gets so big
 			color = attributes[i].attributeColor;
 			tempString = "<font color=\"#" + color + "\">";
 			tempString += attributes[i].attributeName + ": ";
@@ -905,7 +992,7 @@ abstract class W3GuiBaseInventoryComponent
 		finalString += htmlNewline;
 		for (i = 0; i < attributes.Size(); i += 1)
 		{
-			
+			// #J using temp string to follow since finalString gets so big
 			color = attributes[i].attributeColor;
 			tempString = "<font color=\"#" + color + "\">";
 			tempString += (attributes[i].attributeName + delimiter);
@@ -921,7 +1008,7 @@ abstract class W3GuiBaseInventoryComponent
 			finalString += tempString;
 		}
 		
-		if (maxQuality > 1 && maxQuality < 4) 
+		if (maxQuality > 1 && maxQuality < 4) // #J Relics and sets dont have random Attributes from what I understand
 		{
 			if (minQuality != maxQuality)
 			{
@@ -957,4 +1044,4 @@ abstract class W3GuiBaseInventoryComponent
 	
 }
 
-
+//--------------------------------------------------------------------------------------------------------
