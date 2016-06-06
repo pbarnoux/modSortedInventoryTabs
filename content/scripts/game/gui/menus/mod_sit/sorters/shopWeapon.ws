@@ -37,4 +37,12 @@ class SitShopWeaponSorter extends SitShopSorter
 		}
 		return result;
 	}
+	
+		/*
+	Returns this sorter name, useful for debugging messages
+	*/
+	public function ToName(): name
+	{
+		return 'SitShopweaponSorter';
+	}
 }

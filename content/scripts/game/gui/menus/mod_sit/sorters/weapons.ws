@@ -1,34 +1,7 @@
 /*
-Change order of elements in the tab by modifying the indexes
-Make sure to use unique continuous positive integers starting at 0
-Categories are sorted by these index (first, items of the category 0, then items of the category 1, and so on...)
-For best results, put items covering a single cell before items spanning on two cells.
-*/
-enum SitWeaponCategory
-{
-	// Categories containing items covering a single cell
-	SITWC_rune         = 0,
-	SITWC_glyph        = 1,
-	SITWC_weapon_tool  = 2,
-	SITWC_armor_tool   = 3,
-	// Categories containing items spanning on two cells
-	SITWC_steel_sword  = 4,
-	SITWC_silver_sword = 5,
-	SITWC_crossbow     = 6,
-	SITWC_bolt         = 7,
-	SITWC_armor        = 8,
-	SITWC_gloves       = 9,
-	SITWC_pants        = 10,
-	SITWC_boots        = 11,
-	SITWC_trophy       = 12,
-	SITWC_horse        = 13,
-	SITWC_other        = 14,
-}
-
-/*
 Sort logic adapted to the 'weapon tab' of the inventory.
 */
-class SitWeaponSorter extends SitDualCellsContainerSorter
+class SitWeaponsSorter extends SitDualCellsContainerSorter
 {
 	protected var _runes        : array < SitSortable >;
 	protected var _glyphes      : array < SitSortable >;
@@ -56,57 +29,11 @@ class SitWeaponSorter extends SitDualCellsContainerSorter
 		var index, max: int;
 
 		super.Initialize( playerInv, delegate );
-		max = EnumGetMax( 'SitWeaponCategory' );
+		max = EnumGetMax( 'SitWeaponsCategory' );
 
 		for( index = 0; index <= max; index += 1 )
 		{
-			switch( index )
-			{
-				case SITWC_rune:
-					_categories.PushBack( _runes );
-					break;
-				case SITWC_glyph:
-					_categories.PushBack( _glyphes );
-					break;
-				case SITWC_weapon_tool:
-					_categories.PushBack( _weapon_tools );
-					break;
-				case SITWC_armor_tool:
-					_categories.PushBack( _armor_tools );
-					break;
-				case SITWC_steel_sword:
-					_categories.PushBack( _steel_swords );
-					break;
-				case SITWC_silver_sword:
-					_categories.PushBack( _silver_swords );
-					break;
-				case SITWC_crossbow:
-					_categories.PushBack( _crossbows );
-					break;
-				case SITWC_bolt:
-					_categories.PushBack( _bolts );
-					break;
-				case SITWC_armor:
-					_categories.PushBack( _armors );
-					break;
-				case SITWC_gloves:
-					_categories.PushBack( _gloves );
-					break;
-				case SITWC_pants:
-					_categories.PushBack( _pants );
-					break;
-				case SITWC_boots:
-					_categories.PushBack( _boots );
-					break;
-				case SITWC_trophy:
-					_categories.PushBack( _trophies );
-					break;
-				case SITWC_horse:
-					_categories.PushBack( _horse_stuff );
-					break;
-				default:
-					_categories.PushBack( _others );
-			}
+			_categories.PushBack( new SitCategory in this );
 		}
 	}
 
@@ -173,14 +100,6 @@ class SitWeaponSorter extends SitDualCellsContainerSorter
 		else if( categoryName == "boots" )
 		{
 			result = SITWC_boots;
-		}
-		else if( categoryName == "trophy" )
-		{
-			result = SITWC_trophy;
-		}
-		else if( StrBeginsWith( categoryName, "horse_" ) )
-		{
-			result = SITWC_horse;
 		}
 		return result;
 		// Not proud of this complexity, especially after the switch in Initialize...
@@ -275,5 +194,13 @@ class SitWeaponSorter extends SitDualCellsContainerSorter
 			result = super.Compare( left, right );
 		}
 		return result;
+	}
+
+	/*
+	Returns this sorter name, useful for debugging messages
+	*/
+	public function ToName(): name
+	{
+		return 'SitWeaponsSorter';
 	}
 }

@@ -1,7 +1,7 @@
 /***********************************************************************/
 /** Witcher Script file - inventory
 /***********************************************************************/
-/** Copyright © 2013 CDProjektRed
+/** Copyright Â© 2013 CDProjektRed
 /** Author : Bartosz Bigaj
 /***********************************************************************/
 
@@ -334,27 +334,30 @@ class CR4InventoryMenu extends CR4MenuBase
 			// try to select not empty tab for container
 			m_fxSetDefaultTab.InvokeSelfOneArg( FlashArgInt( defaultTab ) );
 		}
-		
+		LogChannel( 'SIT', "SIT 1" );
 		PaperdollUpdateAll();
 		UpdatePlayerStatisticsData();
-		
+		LogChannel( 'SIT', "SIT 2" );
 		m_menuInited = true;
 		if (m_menuState == '') m_menuState = 'CharacterInventory';
 		ApplyMenuState(m_menuState);
-		
+		LogChannel( 'SIT', "SIT 3" );
 		_currentEqippedQuickSlot = GetCurrentEquippedQuickSlot();
 		SelectCurrentModule();	
-		
+		LogChannel( 'SIT', "SIT 4" );
 		m_fxSetNewFlagsForTabs.InvokeSelfSixArgs( FlashArgBool(hasNewItems[0]), FlashArgBool(hasNewItems[1]), FlashArgBool(hasNewItems[2]), FlashArgBool(hasNewItems[3]), FlashArgBool(hasNewItems[4]), FlashArgBool(hasNewItems[5] ) );
 		m_fxSetTooltipState.InvokeSelfTwoArgs( FlashArgBool( thePlayer.upscaledTooltipState ), FlashArgBool( true ) );
-		
+		LogChannel( 'SIT', "SIT 5" );
 		m_dyePreviewSlots.Resize( EnumGetMax( 'EEquipmentSlots' ) + 1 );
 		m_previewSlots.Resize( EnumGetMax( 'EEquipmentSlots' ) + 1 );		
 
+		LogChannel( 'SIT', "SIT 6" );
 		// ++ modSortedInventoryTabs ++
 		if( _currentState == IMS_Player || _currentState == IMS_Shop )
 		{
-			UpdateInventoryFilter( _sitListener.GuessTabIndex( _sitHasNewQuestItem ) );
+			defaultTab = _sitListener.GuessTabIndex( _sitHasNewQuestItem );
+			UpdateInventoryFilter( defaultTab );
+			m_fxSetDefaultTab.InvokeSelfOneArg( FlashArgInt( defaultTab ) );
 		}
 		// -- modSortedInventoryTabs --
 	}
@@ -2086,7 +2089,7 @@ class CR4InventoryMenu extends CR4MenuBase
 		}
 		else
 		{
-			//Ł.SZ we must change it to a proper string!!!!!!!!!!!!!!!!!!!!!
+			//Å.SZ we must change it to a proper string!!!!!!!!!!!!!!!!!!!!!
 			showNotification(GetLocStringByKeyExt("panel_inventory_nothing_to_repair"));
 			OnPlaySoundEvent("gui_global_denied");
 		}

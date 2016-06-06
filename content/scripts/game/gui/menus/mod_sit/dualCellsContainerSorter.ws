@@ -36,4 +36,12 @@ abstract class SitDualCellsContainerSorter extends SitSorter
 		_free_slot = position + 1;
 		return position;
 	}
+
+	/*
+	Returns this sorter name, useful for debugging messages
+	*/
+	public function ToString(): string
+	{
+		return "SitDualCellsContainerSorter";
+	}
 }

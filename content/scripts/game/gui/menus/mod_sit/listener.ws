@@ -8,6 +8,7 @@ class SitListener
 
 	public function Initialize( playerInv: W3GuiPlayerInventoryComponent, optional shopInv: W3GuiShopInventoryComponent ): void
 	{
+		LogChannel( this.ToName(), "Initializing" );
 		_playerInv = playerInv;
 	}
 
@@ -20,9 +21,11 @@ class SitListener
 		{
 			if( IsNewQuestItemAnUnreadDocument() )
 			{
+				LogChannel( this.ToName(), "Best tab to open on: quests" );
 				return IFT_QuestItems;
 			}
 		}
+		LogChannel( this.ToName(), "Best tab to open on: potions" );
 		return IFT_AlchemyItems;
 	}
 
@@ -33,17 +36,30 @@ class SitListener
 	{
 		var sorter, delegate: SitSorter;
 		sorter = GetSorter( tabIndex );
+		Trace();
+		LogChannel( this.ToName(), "OnPopulateTabData( " + tabIndex + ")" );
 
 		if( sorter )
 		{
 			delegate = GetDelegate( tabIndex );
+
+			if ( delegate )
+			{
+				LogChannel( this.ToName(), "Main sorter: " + sorter.ToString() + ", delegate: " + delegate.ToString() );
+			}
+			else
+			{
+				LogChannel( this.ToName(), "Main sorter: " + sorter.ToString() + ", delegate: none" );
+			}
 			sorter.Initialize( _playerInv, delegate );
 			sorter.Sort( sortables, entriesArray );
 
 			if( delegate )
 			{
+				delegate.CleanUp();
 				delete delegate;
 			}
+			sorter.CleanUp();
 			delete sorter;
 		}
 	}
@@ -97,16 +113,15 @@ class SitListener
 		switch( tabIndex )
 		{
 			case InventoryMenuTab_Potions:
-				return new SitPotionSorter in this;
+				return new SitPotionsSorter in this;
 			case InventoryMenuTab_QuestItems:
-			case InventoryMenuTab_Books:
-				return new SitBookSorter in this;
+				return new SitQuestSorter in this;
 			case InventoryMenuTab_Ingredients:
 				return new SitAlchemySorter in this;
 			case InventoryMenuTab_Default:
-				return new SitOtherSorter in this;
+				return new SitMiscSorter in this;
 			case InventoryMenuTab_Weapons:
-				return new SitWeaponSorter in this;
+				return new SitWeaponsSorter in this;
 			default:
 				return NULL;
 		}
@@ -120,5 +135,13 @@ class SitListener
 	{
 		// First class sorters does not delegate anything to anyone.
 		return NULL;
+	}
+
+	/*
+	Returns this sorter name, useful for debugging messages
+	*/
+	public function ToName(): name
+	{
+		return 'SitListener';
 	}
 }

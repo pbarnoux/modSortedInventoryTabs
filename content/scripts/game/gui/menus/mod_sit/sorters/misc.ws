@@ -1,19 +1,7 @@
 /*
-Change order of elements in the tab by modifying the indexes
-Make sure to use unique continuous positive integers starting at 0
-Categories are sorted by these index (first, items of the category 0, then items of the category 1, and so on...)
-*/
-enum SitOtherCategory
-{
-	SITOC_currency = 0,
-	SITOC_other    = 1,
-	SITOC_junk     = 2,
-}
-
-/*
 Sort logic adapted to the 'other tab' of the inventory.
 */
-class SitOtherSorter extends SitSorter
+class SitMiscSorter extends SitSorter
 {
 	protected var _currencies: array < SitSortable >;
 	protected var _junks     : array < SitSortable >;
@@ -29,21 +17,11 @@ class SitOtherSorter extends SitSorter
 		var index, max: int;
 
 		super.Initialize( playerInv, delegate );
-		max = EnumGetMax( 'SitOtherCategory' );
+		max = EnumGetMax( 'SitMiscCategory' );
 
 		for( index = 0; index <= max; index += 1 )
 		{
-			switch( index )
-			{
-				case SITOC_currency:
-					_categories.PushBack( _currencies );
-					break;
-				case SITOC_junk:
-					_categories.PushBack( _junks );
-					break;
-				default:
-					_categories.PushBack( _others );
-			}
+			_categories.PushBack( new SitCategory in this );
 		}
 	}
 
@@ -57,19 +35,38 @@ class SitOtherSorter extends SitSorter
 		var flashObject : CScriptedFlashObject;
 		var result      : int;
 
-		result = SITOC_other;
+		result = SITMC_other;
 		flashObject = element.GetFlashObject();
 		categoryName = flashObject.GetMemberFlashString( "category" );
 		elementName = element.GetName();
 
-		if( elementName == "Orens" || elementName == "Florens" )
+		if( element.IsReadable() )
 		{
-			result = SITOC_currency;
+			if( element.GetFlashObject().GetMemberFlashBool( "isReaded" ) )
+			{
+				result = SITMC_already_read;
+			}
+			else
+			{
+				result = SITMC_not_read_yet;
+			}
+		}
+		else if( elementName == "Orens" || elementName == "Florens" )
+		{
+			result = SITMC_currency;
 		}
 		else if( categoryName == "junk" )
 		{
-			result = SITOC_junk;
+			result = SITMC_junk;
 		}
 		return result;
+	}
+
+	/*
+	Returns this sorter name, useful for debugging messages
+	*/
+	public function ToName(): name
+	{
+		return 'SitMiscSorter';
 	}
 }

@@ -1,19 +1,7 @@
 /*
-Change order of elements in the tab by modifying the indexes
-Make sure to use unique continuous positive integers starting at 0
-Categories are sorted by these index (first, items of the category 0, then items of the category 1, and so on...)
+Sort logic adapted to the 'quest tab' of the inventory.
 */
-enum SitBookCategory
-{
-	SITQC_not_read_yet = 0,
-	SITQC_already_read = 1,
-	SITQC_other        = 2,
-}
-
-/*
-Sort logic adapted to the 'quest tab' or 'book tab' of the inventory.
-*/
-class SitBookSorter extends SitDualCellsContainerSorter
+class SitQuestSorter extends SitDualCellsContainerSorter
 {
 	protected var _unread: array < SitSortable >;
 	protected var _read  : array < SitSortable >;
@@ -29,21 +17,11 @@ class SitBookSorter extends SitDualCellsContainerSorter
 		var index, max: int;
 
 		super.Initialize( playerInv, delegate );
-		max = EnumGetMax( 'SitBookCategory' );
+		max = EnumGetMax( 'SitMiscCategory' );
 
 		for( index = 0; index <= max; index += 1 )
 		{
-			switch( index )
-			{
-				case SITQC_not_read_yet:
-					_categories.PushBack( _unread );
-					break;
-				case SITQC_already_read:
-					_categories.PushBack( _read );
-					break;
-				default:
-					_categories.PushBack( _others );
-			}
+			_categories.PushBack( new SitCategory in this );
 		}
 	}
 
@@ -98,5 +76,13 @@ class SitBookSorter extends SitDualCellsContainerSorter
 			result = 1;
 		}
 		return result;
+	}
+
+	/*
+	Returns this sorter name, useful for debugging messages
+	*/
+	public function ToName(): name
+	{
+		return 'SitQuestSorter';
 	}
 }

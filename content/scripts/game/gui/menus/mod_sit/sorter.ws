@@ -7,7 +7,7 @@ abstract class SitSorter
 	/* A handle on the player inventory */
 	protected var _playerInv     : W3GuiPlayerInventoryComponent;
 	/* The list of categories */
-	protected var _categories    : array < array < SitSortable > >;
+	protected var _categories    : array < SitCategory >;
 	/* A list of grid slots indexes used by items spanning on two cells (axes, swords ...). */
 	protected var _reserved_slots: array < int >;
 	/* Contains the nearest index of a free slot on the grid */
@@ -16,6 +16,18 @@ abstract class SitSorter
 	public function Initialize( playerInv: W3GuiPlayerInventoryComponent, optional delegate: SitSorter ): void
 	{
 		_playerInv = playerInv;
+	}
+	
+	public function CleanUp(): void
+	{
+		var index, size: int;
+
+		size  = _categories.Size();
+
+		for( index = 0; index < size; index += 1)
+		{
+			delete _categories[ index ];
+		}
 	}
 
 	/*
@@ -26,17 +38,24 @@ abstract class SitSorter
 	{
 		var length, index, categoryIndex: int;
 		var element: SitSortable;
+		var tmpElement: CScriptedFlashObject;
 
 		length = entriesArray.GetLength();
+		LogChannel( this.ToName(), "Sorting " + sortables.Size() + " / " + length + " elements" );
 
 		for( index = 0; index < length; index += 1 )
 		{
 			element = sortables[ index ];
 			AddToCategory( element );
 		}
-		entriesArray.ClearElements();
-		FlattenCategories( entriesArray );
-		length = entriesArray.GetLength();
+		//entriesArray.ClearElements();
+		//FlattenCategories( entriesArray );
+		for( index = 0; index < length; index += 1 )
+		{
+			tmpElement = entriesArray.GetElementFlashObject( index );
+			element = sortables [ index ];
+			LogChannel( this.ToName(), "Element named " + element.GetLocalizedName() + " // POSITION : " + tmpElement.GetMemberFlashInt( "gridPosition"));
+		}
 	}
 
 	/*
@@ -76,11 +95,12 @@ abstract class SitSorter
 
 		// Find the best category for this element
 		categoryIndex = GetCategoryIndex( element );
+		LogChannel( this.ToName(), "  > Cat " + categoryIndex + " : " + element.ToString() );
 		length = _categories[ categoryIndex ].Size();
 
 		for( index = 0; index < length; index += 1 )
 		{
-			if ( Compare( element, _categories[ categoryIndex ][ index ], categoryIndex ) < 0 )
+			if ( Compare( element, _categories[ categoryIndex ].At( index ), categoryIndex ) < 0 )
 			{
 				// Insert this element at 'index' because it precedes the next one
 				_categories[ categoryIndex ].Insert( index, element );
@@ -121,7 +141,7 @@ abstract class SitSorter
 
 		for( index = 0; index < length; index += 1 )
 		{
-			element = _categories[ categoryIndex ][ index ];
+			element = _categories[ categoryIndex ].At( index );
 			flashObj = element.GetFlashObject();
 			position = PlaceAt( element, offset, index );
 			flashObj.SetMemberFlashInt( "gridPosition", position );
@@ -140,5 +160,13 @@ abstract class SitSorter
 		// The gridPosition is equal to the number of items already processed.
 		// Other tabs are handled by dualCellsContainerSorter.ws
 		return offset + index;
+	}
+
+	/*
+	Returns this sorter name, useful for debugging messages
+	*/
+	public function ToName(): name
+	{
+		return 'Sorter';
 	}
 }

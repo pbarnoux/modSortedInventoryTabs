@@ -38,7 +38,7 @@ class SitShopListener extends SitListener
 		}
 		else if( shop.HasTag( 'type_inn' ) )
 		{
-			result = IFT_AlchemyItems;
+			result = IFT_Default;
 		}
 		else if( shop.HasTag( 'type_general' ) )
 		{
@@ -46,7 +46,7 @@ class SitShopListener extends SitListener
 		}
 		else if( shop.HasTag( 'type_book' ) )
 		{
-			result = IFT_Books;
+			result = IFT_QuestItems;
 		}
 		return result;
 	}

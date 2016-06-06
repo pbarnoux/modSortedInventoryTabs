@@ -1,19 +1,4 @@
 /*
-Change order of elements in the tab by modifying the indexes
-Make sure to use unique continuous positive integers starting at 0
-Categories are sorted by these index (first, items of the category 0, then items of the category 1, and so on...)
-*/
-enum SitAlchemyCategory
-{
-	SITAC_alcohol             = 0,
-	SITAC_alchemy_ingredient  = 1,
-	SITAC_common_mutagen      = 2,
-	SITAC_monster_mutagen     = 3,
-	SITAC_crafting_ingredient = 4,
-	SITAC_other               = 5,
-}
-
-/*
 Sort logic adapted to the 'ingredients tab' of the inventory.
 */
 class SitAlchemySorter extends SitSorter
@@ -39,26 +24,7 @@ class SitAlchemySorter extends SitSorter
 
 		for( index = 0; index <= max; index += 1 )
 		{
-			switch( index )
-			{
-				case SITAC_alcohol:
-					_categories.PushBack( _alcohols );
-					break;
-				case SITAC_common_mutagen:
-					_categories.PushBack( _mutagens );
-					break;
-				case SITAC_monster_mutagen:
-					_categories.PushBack( _monsterMutagens );
-					break;
-				case SITAC_alchemy_ingredient:
-					_categories.PushBack( _alchemyIngredients );
-					break;
-				case SITAC_crafting_ingredient:
-					_categories.PushBack( _craftingIngredients );
-					break;
-				default:
-					_categories.PushBack( _others );
-			}
+			_categories.PushBack( new SitCategory in this );
 		}
 	}
 
@@ -95,10 +61,6 @@ class SitAlchemySorter extends SitSorter
 				{
 					result = SITAC_monster_mutagen;
 				}
-			}
-			else if( categoryName == "crafting_ingredient" )
-			{
-				result = SITAC_crafting_ingredient;
 			}
 		}
 		return result;
@@ -192,5 +154,13 @@ class SitAlchemySorter extends SitSorter
 			result = super.Compare( left, right );
 		}
 		return result;
+	}
+
+	/*
+	Returns this sorter name, useful for debugging messages
+	*/
+	public function ToName(): name
+	{
+		return 'SitAlchemySorter';
 	}
 }

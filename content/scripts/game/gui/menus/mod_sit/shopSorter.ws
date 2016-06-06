@@ -4,7 +4,7 @@ Delegates sorting of non-sellable items to a wrapped SitSorter instance.
 */
 class SitShopSorter extends SitDualCellsContainerSorter
 {
-	protected var _sellables: array < SitSortable >;
+	protected var _sellables: SitCategory;
 	protected var _delegate : SitSorter;
 
 	/*
@@ -15,6 +15,7 @@ class SitShopSorter extends SitDualCellsContainerSorter
 	{
 		super.Initialize( playerInv, delegate );
 		_delegate = delegate;
+		_sellables = new SitCategory in this;
 		_categories.PushBack( _sellables );
 	}
 
@@ -51,5 +52,13 @@ class SitShopSorter extends SitDualCellsContainerSorter
 		_delegate._free_slot = _free_slot;
 		_delegate._reserved_slots = _reserved_slots;
 		_delegate.FlattenCategories( entriesArray );
+	}
+
+	/*
+	Returns this sorter name, useful for debugging messages
+	*/
+	public function ToString(): string
+	{
+		return "SitShopSorter";
 	}
 }

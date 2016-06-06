@@ -1,32 +1,8 @@
 /*
-Change order of elements in the tab by modifying the indexes
-Make sure to use unique continuous positive integers starting at 0
-Categories are sorted by these index (first, items of the category 0, then items of the category 1, and so on...)
-*/
-enum SitPotionCategory
-{
-	SITPC_steel_oil  = 0,
-	SITPC_silver_oil = 1,
-	SITPC_potion     = 2,
-	SITPC_mutagen    = 3,
-	SITPC_bomb       = 4,
-	SITPC_other      = 5,
-	SITPC_quest      = 6,
-}
-
-/*
 Sort logic adapted to the 'usable tab' of the inventory.
 */
-class SitPotionSorter extends SitSorter
+class SitPotionsSorter extends SitSorter
 {
-	protected var _steel_oils : array < SitSortable >;
-	protected var _silver_oils: array < SitSortable >;
-	protected var _potions    : array < SitSortable >;
-	protected var _mutagens   : array < SitSortable >;
-	protected var _bombs      : array < SitSortable >;
-	protected var _others     : array < SitSortable >;
-	protected var _quests     : array < SitSortable >;
-
 	/*
 	Create containers for each category.
 	Containers are sorted accorded to the SitPotionCategory enumeration.
@@ -37,33 +13,11 @@ class SitPotionSorter extends SitSorter
 		var index, max: int;
 
 		super.Initialize( playerInv, delegate );
-		max = EnumGetMax( 'SitPotionCategory' );
+		max = EnumGetMax( 'SitPotionsCategory' );
 
 		for( index = 0; index <= max; index += 1 )
 		{
-			switch( index )
-			{
-				case SITPC_steel_oil:
-					_categories.PushBack( _steel_oils );
-					break;
-				case SITPC_silver_oil:
-					_categories.PushBack( _silver_oils );
-					break;
-				case SITPC_potion:
-					_categories.PushBack( _potions );
-					break;
-				case SITPC_mutagen:
-					_categories.PushBack( _mutagens );
-					break;
-				case SITPC_bomb:
-					_categories.PushBack( _bombs );
-					break;
-				case SITPC_other:
-					_categories.PushBack( _others );
-					break;
-				default:
-					_categories.PushBack( _quests );
-			}
+			_categories.PushBack( new SitCategory in this );
 		}
 	}
 
@@ -81,16 +35,7 @@ class SitPotionSorter extends SitSorter
 		categoryName = flashObject.GetMemberFlashString( "category" );
 		result = SITPC_other;
 
-		if( categoryName == "oil" )
-		{
-			result = SITPC_silver_oil;
-
-			if( flashObject.GetMemberFlashBool( "isSteelOil" ) )
-			{
-				result = SITPC_steel_oil;
-			}
-		}
-		else if( categoryName == "potion" )
+		if( categoryName == "potion" )
 		{
 			result = SITPC_potion;
 			elementName = element.GetName();
@@ -106,15 +51,6 @@ class SitPotionSorter extends SitSorter
 				// Pop mold ...
 				result = SITPC_quest;
 			}
-		}
-		else if( categoryName == "petard" )
-		{
-			result = SITPC_bomb;
-		}
-		else
-		{
-			// Fetch the duration value for edibles and drinks
-			_playerInv.ExtractRegenEffect( element );
 		}
 		return result;
 	}
@@ -186,5 +122,13 @@ class SitPotionSorter extends SitSorter
 		l_regen = left.GetVitalityRegen();
 		r_regen = right.GetVitalityRegen();
 		return RoundF( r_regen - l_regen );
+	}
+
+	/*
+	Returns this sorter name, useful for debugging messages
+	*/
+	public function ToName(): name
+	{
+		return 'SitPotionSorter';
 	}
 }
